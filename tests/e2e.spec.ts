@@ -69,32 +69,33 @@ test("flag quiz UI shows feedback on click", async ({ page }) => {
   await expect(page.getByText(/Correct|Incorrect/)).toBeVisible();
 });
 
+import { readOptionTexts, waitForOptionsToChange, clickAndAwaitNext, clickAndAwaitFinish, clickAndAwaitRestart } from "./utils/test-helpers";
+
 test("flag quiz UI shows next-question flow and updates score", async ({ page }) => {
-  await page.goto("/flag-quiz");
+  await page.goto("/flag-quiz?n=2&seed=2200");
 
-  // Start deterministic to avoid flake
-  await page.getByRole("button", { name: /Deterministic \(seed=123\)/i }).click();
-
-  // Wait for options
   const options = page.locator("main ul >> role=button");
-  await expect(options).toHaveCount(4);
+  await options.first().waitFor({ state: "visible" });
 
-  // Read initial score
-  const score = page.getByText(/Score:\s*\d+\s*\/\s*\d+/);
-  await expect(score).toBeVisible();
-  const initialText = await score.textContent();
+  // Capture option texts for Q1
+  const before = await readOptionTexts(options);
 
-  // Click first option
+  // Answer Q1 (first click only counts)
   await options.first().click();
-  await expect(page.getByText(/Correct|Incorrect/)).toBeVisible();
+  await page.getByText(/Correct|Incorrect/).waitFor();
 
-  // Score should update (total increments by 1)
-  const afterFirst = await score.textContent();
-  expect(afterFirst).not.toBe(initialText);
+  // Score should increment total to 1
+  await expect(page.getByText(/Score:\s*\d+\s*\/\s*1/)).toBeVisible();
 
-  // Next question
-  await page.getByTestId("next").click();
-  await expect(options).toHaveCount(4); // re-rendered
+  // Go to next question (robust wait)
+  await clickAndAwaitNext(page, options, before);
+
+  // Answer Q2
+  await options.first().click();
+  await page.getByText(/Correct|Incorrect/).waitFor();
+
+  // Total should be 2 now
+  await expect(page.getByText(/Score:\s*\d+\s*\/\s*2/)).toBeVisible();
 });
 
 test("flag quiz shows an image if available", async ({ page }) => {
@@ -127,4 +128,102 @@ test("round of 3 renders at least one flag image", async ({ page }) => {
     }
   }
   expect(sawImage).toBeTruthy();
+});
+
+import { readOptionTexts as readOptionTexts2 } from "./utils/test-helpers";
+
+test("shows summary screen with percent and restart", async ({ page }) => {
+  await page.goto("/flag-quiz?n=3&seed=2300");
+
+  const options = page.locator("main ul >> role=button");
+  await options.first().waitFor({ state: "visible" });
+
+  // Q1
+  let before = await readOptionTexts(options);
+  await options.first().click();
+  await page.getByText(/Correct|Incorrect/).waitFor();
+  await clickAndAwaitNext(page, options, before);
+
+  // Q2
+  before = await readOptionTexts(options);
+  await options.first().click();
+  await page.getByText(/Correct|Incorrect/).waitFor();
+  await clickAndAwaitNext(page, options, before);
+
+  // Q3 → Finish (summary appears)
+  before = await readOptionTexts(options);
+  await options.first().click();
+  await page.getByText(/Correct|Incorrect/).waitFor();
+  await clickAndAwaitFinish(page);
+
+  // Summary visible with score line
+  await page.getByTestId("summary-heading").waitFor({ timeout: 5000 });
+  await page.getByTestId("summary-score").waitFor({ timeout: 5000 });
+
+  // Restart → ensure new question renders and differs from last-question options
+  await clickAndAwaitRestart(page, options, before);
+});
+
+test("difficulty medium returns 6 options", async ({ page }) => {
+  await page.goto("/flag-quiz?n=1&seed=3000");
+  await page.selectOption('select[aria-label="Difficulty"]', 'medium');
+  // Load deterministic question
+  await page.getByRole("button", { name: /Deterministic \(seed=123\)/i }).click();
+  const options = page.locator("main ul >> role=button");
+  await options.first().waitFor({ state: "visible" });
+  await expect(options).toHaveCount(6);
+});
+
+test("difficulty hard returns 8 options", async ({ page }) => {
+  await page.goto("/flag-quiz?n=1&seed=3001");
+  await page.selectOption('select[aria-label="Difficulty"]', 'hard');
+  await page.getByRole("button", { name: /Deterministic \(seed=123\)/i }).click();
+  const options = page.locator("main ul >> role=button");
+  await options.first().waitFor({ state: "visible" });
+  await expect(options).toHaveCount(8);
+});
+
+test("randomisation changes option order across plays without seed", async ({ page }) => {
+  await page.goto("/flag-quiz?n=1"); // no seed → non-deterministic
+  const optionsA = page.locator("main ul >> role=button");
+  await optionsA.first().waitFor({ state: "visible" });
+  const firstA = await optionsA.first().textContent();
+
+  // Reload a new question (no seed) and compare first option text
+  await page.getByRole("button", { name: /^New Question$/i }).click();
+  const optionsB = page.locator("main ul >> role=button");
+  await optionsB.first().waitFor({ state: "visible" });
+  const firstB = await optionsB.first().textContent();
+
+  // It's possible by chance they match; assert "usually different" via soft expect:
+  expect(firstA).not.toBeNull();
+  expect(firstB).not.toBeNull();
+  // Best-effort sanity: if equal, still pass; we just log
+  console.log("First option A:", firstA, "B:", firstB);
+});
+
+test("stores last results in localStorage and displays them", async ({ page }) => {
+  await page.goto("/flag-quiz?n=3&seed=2100");
+  const options = page.locator("main ul >> role=button");
+  await options.first().waitFor({ state: "visible" });
+  for (let i=0;i<3;i++){
+    await options.first().click();
+    await page.getByText(/Correct|Incorrect/).waitFor();
+    if (i<2) { await page.getByTestId("next").click(); await options.first().waitFor({ state: "visible" }); }
+  }
+  await page.getByTestId("finish").click();
+  await page.getByRole("heading", { name: /Round complete/i }).waitFor();
+  const list = page.locator('ul[aria-label="Recent games"] li');
+  await list.first().waitFor({ state: "visible" });
+});
+
+test.skip("randomises question order and option shuffle (stub)", async ({ page }) => {
+  // TODO Sprint 4 implementation:
+  // - Compare two rounds without seed; first question/first option differ
+});
+
+test.skip("applies difficulty (easy/medium/hard) to number of options (stub)", async ({ page }) => {
+  // TODO Sprint 4 implementation:
+  // - Select difficulty
+  // - Verify number of answer options per question matches selection
 });

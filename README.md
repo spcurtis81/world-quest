@@ -32,7 +32,7 @@ GitHub Actions runs typecheck, lint, and tests on pull requests.
 
 ## Current Features
 
-- Flag Quiz (`/flag-quiz`): answer a multiple‑choice flag question, use “Next Question” to load another, and see a session score (correct/total) in the header.
+- Flag Quiz (`/flag-quiz`): multi‑question round with answer feedback, Next/Finish, summary with score, restart, and flag images when available.
 
 ## API Endpoints
 
@@ -55,3 +55,4 @@ GitHub Actions runs typecheck, lint, and tests on pull requests.
 
 - `pnpm dev` runs API and Web together (API on 4000, Web on 3000)
 - Configure `.env` as needed, e.g. `NEXT_PUBLIC_API_URL=http://localhost:4000`
+ - History: recent games are stored locally in your browser (last 5)

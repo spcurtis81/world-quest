@@ -20,3 +20,9 @@
 - Flag images (accessible)
 - Restart flow
 - E2E for full round
+
+## 0.4.0 – Sprint 4 (planned)
+- Round summary UI
+- Score history (localStorage)
+- Randomised order and option shuffle
+- Difficulty selector

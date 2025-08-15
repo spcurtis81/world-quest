@@ -1,11 +1,12 @@
 import { FastifyInstance } from "fastify";
 import { z } from "zod";
 import { COUNTRIES, seededRandom, pickDistinct } from "@lib/shared/flags.data";
+import { FLAG_IMAGE_CODES } from "@lib/shared/flags.images";
 
 const FlagQuestion = z.object({
   id: z.string(),
   question: z.string(),
-  options: z.array(z.object({ id: z.string(), label: z.string() })).length(4),
+  options: z.array(z.object({ id: z.string(), label: z.string() })).min(4),
   correctId: z.string(),
   imageUrl: z.string().optional()
 });
@@ -13,23 +14,33 @@ const FlagQuestion = z.object({
 export default async function quizRoutes(fastify: FastifyInstance) {
   // GET /v1/quiz/flag?seed=123
   fastify.get("/v1/quiz/flag", async (req, reply) => {
-    const schema = z.object({ seed: z.coerce.number().optional() });
-    const { seed } = schema.parse(req.query ?? {});
+    const schema = z.object({
+      seed: z.coerce.number().optional(),
+      options: z.coerce.number().optional()
+    });
+    const { seed, options } = schema.parse(req.query ?? {});
     const rand = typeof seed === "number" ? seededRandom(seed) : Math.random;
 
+    const desired = [4, 6, 8].includes(options ?? 0) ? (options as number) : 4;
     const correct = pickDistinct(rand, COUNTRIES, 1)[0];
-    const distractors = pickDistinct(rand, COUNTRIES.filter(c => c.code !== correct.code), 3);
+    const distractors = pickDistinct(rand, COUNTRIES.filter(c => c.code !== correct.code), desired - 1);
 
-    const all = [correct, ...distractors]
-      .map(c => ({ id: c.code, label: c.name }))
-      .sort(() => (typeof seed === "number" ? (rand() - 0.5) : Math.random() - 0.5)); // shuffle stable-ish
+    const all = [correct, ...distractors].map(c => ({ id: c.code, label: c.name }));
+    // Fisher–Yates shuffle using rand() for seed stability when provided
+    for (let i = all.length - 1; i > 0; i--) {
+      const j = Math.floor(rand() * (i + 1));
+      [all[i], all[j]] = [all[j], all[i]];
+    }
+
+    const code = correct.code;
+    const imageUrl = FLAG_IMAGE_CODES.has(code) ? `/flags/${code}.svg` : `/flags/_placeholder.svg`;
 
     const payload = {
       id: `flag-${correct.code}`,
       question: "Which country’s flag is shown?",
       options: all,
       correctId: correct.code,
-      imageUrl: `/flags/${correct.code}.svg`
+      imageUrl
     };
 
     // validate before sending
