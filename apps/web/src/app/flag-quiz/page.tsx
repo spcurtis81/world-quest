@@ -41,6 +41,8 @@ export default function FlagQuizPage() {
     const data = await res.json();
     setQ(data);
     setStatus("ready");
+    // Focus first option for accessibility
+    setTimeout(() => firstOptionRef.current?.focus(), 0);
   }
 
   React.useEffect(() => {
@@ -84,20 +86,21 @@ export default function FlagQuizPage() {
   }, [phase, scoreCorrect, scoreTotal]);
 
   return (
-    <main style={{ padding: 24, maxWidth: 640 }}>
+    <main role="main" aria-label="Flag Quiz">
+      <div className="fq-container">
       <h1>Flag Quiz</h1>
       <p style={{ marginTop: 0 }}>Single question demo (Sprint 1).</p>
       <p style={{ margin: "8px 0 16px" }}>Score: {scoreCorrect} / {scoreTotal} {/* Sprint 2: wire up */}</p>
-      <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-        <button onClick={() => load()}>New Question</button>
-        <button onClick={() => load(123)}>Deterministic (seed=123)</button>
+      <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+        <button style={{ minHeight: 44, padding: "12px 14px" }} onClick={() => load()}>New Question</button>
+        <button style={{ minHeight: 44, padding: "12px 14px" }} onClick={() => load(123)}>Deterministic (seed=123)</button>
         <label style={{ marginLeft: 8 }}>Questions:
           <select value={roundSize} onChange={e => setRoundSize(Number(e.target.value))}>
             {[3,5,10].map(n => <option key={n} value={n}>{n}</option>)}
           </select>
         </label>
       </div>
-      <div style={{ display: "flex", gap: 8, alignItems: "center", marginTop: 8 }}>
+      <div style={{ display: "flex", gap: 12, alignItems: "center", marginTop: 8 }}>
         {/* Sprint 4 STUB: difficulty selector (no functional change yet) */}
         <label>Difficulty:
           <select aria-label="Difficulty" value={difficulty} onChange={e => setDifficulty(e.target.value as any)}>
@@ -107,7 +110,7 @@ export default function FlagQuizPage() {
           </select>
         </label>
         {/* Sprint 4 STUB: start round (no new behaviour yet) */}
-        <button type="button" aria-label="Start Round (stub)">Start Round</button>
+        <button type="button" aria-label="Start Round (stub)" style={{ minHeight: 44, padding: "12px 14px" }}>Start Round</button>
       </div>
 
       {status === "loading" && <p>Loading…</p>}
@@ -130,7 +133,7 @@ export default function FlagQuizPage() {
               ))
             )}
           </ul>
-          <button onClick={() => {
+          <button aria-label="Play Again" onClick={() => {
             setScoreCorrect(0); setScoreTotal(0); setQuestionIndex(0); setChosen(null);
             setPhase("question"); load(seedFor(0));
           }} data-testid="restart">Play Again</button>
@@ -147,7 +150,7 @@ export default function FlagQuizPage() {
               />
             )}
             <h2 style={{ marginBottom: 8 }}>{q.question}</h2>
-            <ul aria-label="Answer options" style={{ listStyle: "none", padding: 0, display: "grid", gap: 8 }}>
+            <ul aria-label="Answer options" style={{ listStyle: "none", padding: 0, display: "grid", gap: 12 }}>
               {q.options.map((opt, idx) => {
                 const isCorrect = chosen && opt.id === q.correctId;
                 const isWrong = chosen === opt.id && opt.id !== q.correctId;
@@ -163,10 +166,12 @@ export default function FlagQuizPage() {
                         }
                       }}
                       disabled={!!chosen}
+                      aria-pressed={chosen === opt.id}
                       style={{
-                        padding: "8px 12px",
+                        padding: "12px 14px",
                         border: "1px solid #ccc",
                         width: "100%",
+                        minHeight: 44,
                         textAlign: "left",
                         background: isCorrect ? "#d4edda" : isWrong ? "#f8d7da" : undefined
                       }}
@@ -184,10 +189,10 @@ export default function FlagQuizPage() {
               </p>
             )}
             {phase === "question" && questionIndex < roundSize - 1 && (
-              <button onClick={() => { const next = questionIndex + 1; setQuestionIndex(next); setChosen(null); load(seedFor(next)); }} data-testid="next">Next Question</button>
+              <button aria-label="Next Question" style={{ minHeight: 44, padding: "12px 14px" }} onClick={() => { const next = questionIndex + 1; setQuestionIndex(next); setChosen(null); load(seedFor(next)); }} data-testid="next">Next Question</button>
             )}
             {phase === "question" && questionIndex === roundSize - 1 && (
-              <button onClick={() => { setPhase("summary"); }} data-testid="finish">Finish Round</button>
+              <button aria-label="Finish Round" style={{ minHeight: 44, padding: "12px 14px" }} onClick={() => { setPhase("summary"); }} data-testid="finish">Finish Round</button>
             )}
           </section>
         )
@@ -203,6 +208,7 @@ export default function FlagQuizPage() {
         </ul>
         <button type="button" aria-label="Play Again (stub)">Play Again</button>
       </section>
+      </div>
     </main>
   );
 }

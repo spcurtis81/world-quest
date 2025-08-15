@@ -1,1 +1,5 @@
 *{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif}
+.fq-container{max-width:640px;margin:0 auto;padding:16px}
+@media (min-width:768px){.fq-container{padding:24px}}
+@media (max-width:480px){main{padding:16px}button{min-height:44px}}
+:focus-visible{outline:2px solid;outline-offset:2px}

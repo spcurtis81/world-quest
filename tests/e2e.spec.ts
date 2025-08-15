@@ -202,6 +202,15 @@ test("randomisation changes option order across plays without seed", async ({ pa
   console.log("First option A:", firstA, "B:", firstB);
 });
 
+test("mobile layout renders and is tappable", async ({ page, browserName }) => {
+  await page.setViewportSize({ width: 375, height: 812 });
+  await page.goto("/flag-quiz?n=1&seed=5000");
+  const options = page.locator("main ul >> role=button");
+  await options.first().waitFor({ state: "visible" });
+  await options.first().click(); // should be tappable at this size
+  await page.getByText(/Correct|Incorrect/).waitFor();
+});
+
 test("stores last results in localStorage and displays them", async ({ page }) => {
   await page.goto("/flag-quiz?n=3&seed=2100");
   const options = page.locator("main ul >> role=button");
@@ -215,6 +224,15 @@ test("stores last results in localStorage and displays them", async ({ page }) =
   await page.getByRole("heading", { name: /Round complete/i }).waitFor();
   const list = page.locator('ul[aria-label="Recent games"] li');
   await list.first().waitFor({ state: "visible" });
+});
+
+test("keyboard navigation works for options", async ({ page }) => {
+  await page.goto("/flag-quiz?n=1&seed=5100");
+  const first = page.locator("main ul >> role=button").first();
+  await first.waitFor({ state: "visible" });
+  await first.focus();
+  await page.keyboard.press("Enter");
+  await page.getByText(/Correct|Incorrect/).waitFor();
 });
 
 
