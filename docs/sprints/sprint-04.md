@@ -1,5 +1,5 @@
 # Sprint 4 – Summary, History, Randomisation, Difficulty (Stub)
-**Dates:** {{fill when closed}}
+**Dates:** 2025-08-15 – 2025-08-15
 **Planned Version:** 0.4.0
 
 ## Sprint Goal
@@ -12,13 +12,23 @@ Improve game flow and replayability: end-of-game summary, score history (localSt
 4. As a player, I can choose difficulty (options per question).
 
 ## Deliverables (planned)
-- Summary UI
-- Score history (localStorage)
-- Question/option shuffle
-- Difficulty selector and behaviour
+- ✓ Summary UI
+- ✓ Score history (localStorage)
+- ✓ Question/option shuffle
+- ✓ Difficulty selector and behaviour
 
 ## Testing & QA (planned)
 - E2E for summary, history persistence, randomness, difficulty.
 
 ## Definition of Done
 - All E2E pass; docs and changelog updated; release 0.4.0.
+
+## Outcomes
+- 14/14 E2E passing
+- Summary + history + difficulty live
+- Deterministic shuffle with seed; non-seeded play varies
+
+## Next
+- Real flag images (CDN or local)
+- Mobile layout polish
+- Series/levels or categories

@@ -26,3 +26,15 @@
 - Score history (localStorage)
 - Randomised order and option shuffle
 - Difficulty selector
+
+## 0.4.0 – Sprint 4
+- Round summary with percent + restart
+- Recent games (localStorage, last 5)
+- Difficulty (4/6/8 options) via ?options=
+- Deterministic option shuffle when seeded
+- E2E for summary/history/difficulty/randomisation
+
+## 0.5.0 – Sprint 5 (planned)
+- Real flag images via CDN/local toggle with fallback
+- Mobile layout/tap-target polish
+- Accessibility improvements

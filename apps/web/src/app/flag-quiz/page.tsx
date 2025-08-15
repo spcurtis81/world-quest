@@ -142,6 +142,7 @@ export default function FlagQuizPage() {
               <img
                 src={q.imageUrl}
                 alt={`Flag for ${q?.id ?? "current question"}`}
+                loading="lazy"
                 style={{ maxWidth: 320, height: "auto", display: "block", marginBottom: 12 }}
               />
             )}

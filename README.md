@@ -32,13 +32,13 @@ GitHub Actions runs typecheck, lint, and tests on pull requests.
 
 ## Current Features
 
-- Flag Quiz (`/flag-quiz`): multi‑question round with answer feedback, Next/Finish, summary with score, restart, and flag images when available.
+- Flag Quiz (`/flag-quiz`): multi‑question rounds with answer feedback, Next/Finish, end-of-round summary with score and percent, restart (Play Again), recent games history (localStorage, last 5), difficulty selector (easy/medium/hard), and flag images when available.
 
 ## API Endpoints
 
 - `GET /healthz` – API health
 - `GET /v1/ping` – API ping
-- `GET /v1/quiz/flag?seed=<int>` – Flag question; deterministic with `seed`
+- `GET /v1/quiz/flag?seed=<int>&options=<4|6|8>` – Flag question; deterministic with `seed`; number of options controlled by `options`
 
 ## Web Pages
 

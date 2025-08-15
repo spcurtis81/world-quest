@@ -33,7 +33,14 @@ export default async function quizRoutes(fastify: FastifyInstance) {
     }
 
     const code = correct.code;
-    const imageUrl = FLAG_IMAGE_CODES.has(code) ? `/flags/${code}.svg` : `/flags/_placeholder.svg`;
+    const lower = code.toLowerCase();
+    const base = process.env.FLAG_CDN_BASE ?? "https://flagcdn.com";
+    const fmt = (process.env.FLAG_CDN_FORMAT ?? "svg").toLowerCase();
+    const size = process.env.FLAG_CDN_SIZE ?? "w320";
+    const cdnUrl = fmt === "svg" ? `${base}/${lower}.svg` : `${base}/${size}/${lower}.png`;
+    const localUrl = FLAG_IMAGE_CODES.has(code) ? `/flags/${code}.svg` : `/flags/_placeholder.svg`;
+    const useCdn = (process.env.USE_FLAG_CDN ?? "false").toLowerCase() === "true";
+    const imageUrl = useCdn ? cdnUrl : localUrl;
 
     const payload = {
       id: `flag-${correct.code}`,
