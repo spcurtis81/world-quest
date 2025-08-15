@@ -68,3 +68,31 @@ test("flag quiz UI shows feedback on click", async ({ page }) => {
   // feedback should appear
   await expect(page.getByText(/Correct|Incorrect/)).toBeVisible();
 });
+
+test("flag quiz UI shows next-question flow and updates score", async ({ page }) => {
+  await page.goto("/flag-quiz");
+
+  // Start deterministic to avoid flake
+  await page.getByRole("button", { name: /Deterministic \(seed=123\)/i }).click();
+
+  // Wait for options
+  const options = page.locator("main ul >> role=button");
+  await expect(options).toHaveCount(4);
+
+  // Read initial score
+  const score = page.getByText(/Score:\s*\d+\s*\/\s*\d+/);
+  await expect(score).toBeVisible();
+  const initialText = await score.textContent();
+
+  // Click first option
+  await options.first().click();
+  await expect(page.getByText(/Correct|Incorrect/)).toBeVisible();
+
+  // Score should update (total increments by 1)
+  const afterFirst = await score.textContent();
+  expect(afterFirst).not.toBe(initialText);
+
+  // Next question
+  await page.getByTestId("next").click();
+  await expect(options).toHaveCount(4); // re-rendered
+});
