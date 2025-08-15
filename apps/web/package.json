@@ -1,0 +1,29 @@
+{
+  "name": "@world-quest/web",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "next": "^15.0.0",
+    "react": "^18 || ^19",
+    "react-dom": "^18 || ^19",
+    "zod": "^3.23.8",
+    "@world-quest/ui": "workspace:*",
+    "@world-quest/lib": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^20.12.12",
+    "@types/react": "^18.3.5",
+    "@types/react-dom": "^18.3.0",
+    "eslint": "^9.8.0",
+    "eslint-config-next": "^15.0.0",
+    "typescript": "^5.6.2"
+  }
+}

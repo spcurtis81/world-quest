@@ -1,0 +1,8 @@
+{
+  "name": "@world-quest/config",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "files": ["eslint", "prettier", "tsconfig"],
+  "publishConfig": {"access": "public"}
+}

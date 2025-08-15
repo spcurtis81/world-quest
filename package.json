@@ -1,0 +1,43 @@
+{
+  "name": "world-quest",
+  "private": true,
+  "packageManager": "pnpm@9.6.0",
+  "scripts": {
+    "dev": "concurrently -n web,api -c blue,green \"pnpm -w run dev:web\" \"pnpm -w run dev:api\"",
+    "dev:web": "pnpm --filter @world-quest/web dev",
+    "dev:api": "pnpm --filter @world-quest/api dev",
+    "build": "pnpm -r build",
+    "build:web": "pnpm --filter @world-quest/web build",
+    "build:api": "pnpm --filter @world-quest/api build",
+    "start:web": "pnpm --filter @world-quest/web start",
+    "start:api": "pnpm --filter @world-quest/api start",
+    "typecheck": "tsc -p tsconfig.base.json --noEmit",
+    "lint": "eslint . --max-warnings=0",
+    "format": "prettier . --write",
+    "test": "playwright test",
+    "test:e2e": "playwright test",
+    "postinstall": "husky install || true"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.47.0",
+    "@types/node": "^20.12.12",
+    "@typescript-eslint/eslint-plugin": "^7.18.0",
+    "@typescript-eslint/parser": "^7.18.0",
+    "concurrently": "^8.2.2",
+    "eslint": "^9.8.0",
+    "eslint-config-next": "^15.0.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-import": "^2.29.1",
+    "eslint-plugin-react": "^7.35.0",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-unused-imports": "^3.1.0",
+    "husky": "^9.0.11",
+    "prettier": "^3.3.3",
+    "prettier-plugin-packagejson": "^2.5.3",
+    "tsup": "^8.1.0",
+    "tsx": "^4.16.2",
+    "typescript": "^5.6.2",
+    "vite": "^5.4.2",
+    "@vitejs/plugin-react": "^4.3.1"
+  }
+}

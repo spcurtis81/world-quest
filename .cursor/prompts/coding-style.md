@@ -1,0 +1,5 @@
+- Name variables and functions descriptively.
+- Avoid deep nesting; use guard clauses.
+- Handle errors explicitly; no silent catches.
+- Keep components small; prefer composition.
+- Write tests for critical logic and components.

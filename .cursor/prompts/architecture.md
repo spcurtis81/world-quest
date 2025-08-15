@@ -1,0 +1,1 @@
+You are working in a pnpm+TypeScript monorepo with Next.js and Fastify. Maintain strict typing, reusable configs, and testability. Prefer composition over inheritance. Emphasize small, focused modules and clear boundaries between `apps` and `packages`.
