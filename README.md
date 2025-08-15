@@ -29,3 +29,29 @@ Copy `.env.example` to `.env` and adjust values.
 ## CI
 
 GitHub Actions runs typecheck, lint, and tests on pull requests.
+
+## Current Features
+
+- Flag Quiz (`/flag-quiz`): answer a multiple‑choice flag question, use “Next Question” to load another, and see a session score (correct/total) in the header.
+
+## API Endpoints
+
+- `GET /healthz` – API health
+- `GET /v1/ping` – API ping
+- `GET /v1/quiz/flag?seed=<int>` – Flag question; deterministic with `seed`
+
+## Web Pages
+
+- `/` – landing page
+- `/flag-quiz` – quiz UI (feedback + Next + session score)
+- `/healthz` – web health check
+
+## Health Checks
+
+- Web: `GET /healthz`
+- API: `GET /healthz`
+
+## Quick start
+
+- `pnpm dev` runs API and Web together (API on 4000, Web on 3000)
+- Configure `.env` as needed, e.g. `NEXT_PUBLIC_API_URL=http://localhost:4000`

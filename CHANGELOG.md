@@ -8,8 +8,9 @@
 - Enabled CORS for local development.
 - Documentation: Sprint 1 living doc, bug log, and release notes.
 
-## 0.2.0 – Sprint 2 (planned)
-- Expand country dataset
-- UI feedback + “Next Question”
-- Session score (frontend-only)
-- E2E for feedback & score
+## 0.2.0 – Sprint 2
+- Expand country dataset (~60)
+- Web UI: clear answer feedback and disabled options post‑answer
+- “Next Question” flow
+- Session score (frontend state)
+- E2E tests for feedback/Next/score (green)

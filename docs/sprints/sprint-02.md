@@ -1,5 +1,5 @@
 # Sprint 2 – Data, Feedback, and Score
-**Dates:** {{fill when closed}}
+**Dates:** 2025-08-15 – 2025-08-15
 **Planned Version:** 0.2.0
 
 ## Sprint Goal
@@ -12,10 +12,20 @@ Deliver a more engaging quiz: larger flag dataset, clearer UI feedback, and basi
 4. As a tester, E2E verifies feedback flow, score updates, and seeded determinism still works.
 
 ## Features / Deliverables
-- Expanded `COUNTRIES` dataset (flags.data.ts).
-- Web UI: highlight answers, “Next Question” button.
-- Frontend-only score (stores in component state, later may persist).
-- E2E tests for feedback + score flow.
+- ✓ Expanded `COUNTRIES` dataset (flags.data.ts).
+- ✓ Web UI: highlight answers, “Next Question” button.
+- ✓ Frontend-only score (stores in component state, later may persist).
+- ✓ E2E tests for feedback + score flow.
+
+## Outcomes / Demo Notes
+- E2E suite 100% passing (7 tests)
+- UI feedback + Next flow + session score demonstrated
+- Dataset expanded; API shape unchanged
+
+## Next
+- Option A: Multi‑question rounds (n questions) with score summary
+- Option B: Flag images and accessibility labelling
+- Option C: Persist score/history locally
 
 ## Testing & QA
 - Unit tests (small helpers).
