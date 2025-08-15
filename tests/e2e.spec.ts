@@ -217,13 +217,4 @@ test("stores last results in localStorage and displays them", async ({ page }) =
   await list.first().waitFor({ state: "visible" });
 });
 
-test.skip("randomises question order and option shuffle (stub)", async ({ page }) => {
-  // TODO Sprint 4 implementation:
-  // - Compare two rounds without seed; first question/first option differ
-});
 
-test.skip("applies difficulty (easy/medium/hard) to number of options (stub)", async ({ page }) => {
-  // TODO Sprint 4 implementation:
-  // - Select difficulty
-  // - Verify number of answer options per question matches selection
-});
