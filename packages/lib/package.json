@@ -1,27 +1,20 @@
 {
-  "name": "@world-quest/lib",
-  "version": "0.0.0",
+  "name": "@lib/shared",
   "private": true,
+  "version": "0.1.0",
   "type": "module",
-  "main": "dist/index.cjs",
-  "module": "dist/index.js",
+  "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
-    }
-  },
   "scripts": {
-    "build": "tsup src/index.ts --format esm,cjs --dts --clean",
-    "dev": "tsup src/index.ts --watch --format esm,cjs --dts",
-    "typecheck": "tsc -p tsconfig.json --noEmit",
-    "lint": "eslint .",
-    "prepublishOnly": "pnpm build"
+    "build": "tsc -p tsconfig.json",
+    "dev": "tsc -w -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json",
+    "lint": "echo \"(lib lint via root)\"",
+    "format": "echo \"(lib format via root)\"",
+    "test": "vitest"
   },
   "devDependencies": {
-    "tsup": "^8.1.0",
-    "typescript": "^5.6.2"
+    "typescript": "^5.6.2",
+    "vitest": "^2.0.5"
   }
 }

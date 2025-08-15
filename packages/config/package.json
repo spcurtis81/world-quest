@@ -1,8 +1,11 @@
 {
-  "name": "@world-quest/config",
-  "version": "0.0.0",
+  "name": "@config/shared",
+  "version": "0.1.0",
   "private": true,
   "type": "module",
-  "files": ["eslint", "prettier", "tsconfig"],
-  "publishConfig": {"access": "public"}
+  "exports": {
+    "./eslint": "./eslint.config.cjs",
+    "./prettier": "./prettier.config.cjs",
+    "./tsconfig": "./tsconfig.shared.json"
+  }
 }

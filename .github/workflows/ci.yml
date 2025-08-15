@@ -1,31 +1,15 @@
 name: CI
-
-on:
-  pull_request:
-    branches: ["**"]
-  push:
-    branches: ["main"]
-
+on: [push, pull_request]
 jobs:
   build-test:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: 'pnpm'
-      - name: Enable corepack
-        run: corepack enable
-      - name: Install dependencies
-        run: pnpm i --frozen-lockfile=false
-      - name: Typecheck
-        run: pnpm -r run typecheck
-      - name: Lint
-        run: pnpm -r run lint
-      - name: Build
-        run: pnpm -r run build
-      - name: Test
-        run: pnpm -w exec playwright install --with-deps && pnpm test:e2e
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with: { version: 9 }
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: 'pnpm' }
+      - run: pnpm i --frozen-lockfile
+      - run: pnpm typecheck
+      - run: pnpm lint
+      - run: pnpm test

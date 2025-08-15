@@ -1,10 +1,10 @@
 # Dependencies
-node_modules/
+node_modules
 .pnp.cjs
 .pnp.loader.mjs
 
 # Builds
-.next/
+.next
 dist/
 build/
 .out/
@@ -28,9 +28,13 @@ pnpm-debug.log*
 .DS_Store
 *.swp
 .idea/
-.vscode/
+.vscode
 
 # Playwright
 playwright-report/
 blob-report/
 .test-results/
+
+# Do not track built JS from web src
+apps/web/src/**/*.js
+apps/web/src/**/*.js.map

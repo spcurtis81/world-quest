@@ -1,0 +1,1 @@
+Use this prompt to plan a small feature: goals, constraints, data flow, interfaces, risks, and test plan. Keep it concise and actionable.

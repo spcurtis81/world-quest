@@ -1,20 +1,6 @@
-# API Dockerfile
-FROM node:20-alpine AS deps
+FROM node:20-alpine
 WORKDIR /app
-COPY package.json pnpm-workspace.yaml tsconfig.base.json .npmrc* .yarnrc* ./
-COPY packages ./packages
-COPY apps/api ./apps/api
-RUN corepack enable && pnpm -w i --frozen-lockfile || pnpm -w i
-
-FROM node:20-alpine AS build
-WORKDIR /app
-COPY --from=deps /app /app
-RUN pnpm --filter @world-quest/api build
-
-FROM node:20-alpine AS runner
-WORKDIR /app
-ENV NODE_ENV=production
-COPY --from=build /app/apps/api/dist ./dist
-COPY apps/api/package.json ./package.json
+COPY . .
+RUN corepack enable && pnpm i --frozen-lockfile && pnpm -C apps/api build
 EXPOSE 4000
-CMD ["node", "dist/index.js"]
+CMD ["pnpm","-C","apps/api","start"]

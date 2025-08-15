@@ -1,32 +1,29 @@
 {
-  "name": "@world-quest/ui",
-  "version": "0.0.0",
+  "name": "@ui/shared",
   "private": true,
+  "version": "0.1.0",
   "type": "module",
-  "main": "dist/index.cjs",
-  "module": "dist/index.js",
+  "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
-    }
+  "scripts": {
+    "build": "tsc -p tsconfig.json && vite build",
+    "dev": "vite",
+    "typecheck": "tsc -p tsconfig.json",
+    "lint": "echo \"(ui lint via root)\"",
+    "format": "echo \"(ui format via root)\"",
+    "test": "vitest"
   },
   "peerDependencies": {
-    "react": "^18 || ^19",
-    "react-dom": "^18 || ^19"
-  },
-  "scripts": {
-    "build": "tsup src/index.tsx --format esm,cjs --dts --clean",
-    "dev": "tsup src/index.tsx --watch --format esm,cjs --dts",
-    "typecheck": "tsc -p tsconfig.json --noEmit",
-    "lint": "eslint ."
+    "react": ">=18",
+    "react-dom": ">=18"
   },
   "devDependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
     "@types/react": "^18.3.5",
     "@types/react-dom": "^18.3.0",
-    "tsup": "^8.1.0",
-    "typescript": "^5.6.2"
+    "typescript": "^5.6.2",
+    "vite": "^5.4.0",
+    "vitest": "^2.0.5"
   }
 }

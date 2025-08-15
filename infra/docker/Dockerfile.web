@@ -1,20 +1,6 @@
-# Web Dockerfile
-FROM node:20-alpine AS deps
+FROM node:20-alpine
 WORKDIR /app
-COPY package.json pnpm-workspace.yaml tsconfig.base.json .npmrc* .yarnrc* ./
-COPY packages ./packages
-COPY apps/web ./apps/web
-RUN corepack enable && pnpm -w i --frozen-lockfile || pnpm -w i
-
-FROM node:20-alpine AS build
-WORKDIR /app
-COPY --from=deps /app /app
-RUN pnpm --filter @world-quest/web build
-
-FROM node:20-alpine AS runner
-WORKDIR /app
-ENV NODE_ENV=production
-COPY --from=build /app/apps/web/.next ./.next
-COPY apps/web/package.json ./package.json
+COPY . .
+RUN corepack enable && pnpm i --frozen-lockfile && pnpm -C apps/web build
 EXPOSE 3000
-CMD ["npx", "next", "start", "-p", "3000"]
+CMD ["pnpm","-C","apps/web","start"]

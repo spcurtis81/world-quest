@@ -1,7 +1,7 @@
-- Keep responses concise and actionable.
-- Prefer code edits over descriptions.
-- Use `apps/` and `packages/` naming consistently.
-- Default to TypeScript `strict` mode.
-- Favor functional, pure utilities in `packages/lib`.
-- UI components in `packages/ui` must be framework-agnostic React with Storybook compatibility.
-- API must be typed end-to-end with Zod schemas.
+# Project Rules
+- TypeScript everywhere.
+- Shared configs from packages/config.
+- Next.js must support BASE_PATH.
+- Fastify + Zod + pino on API.
+- New code includes types, tests, minimal docs.
+- Conventional commits.

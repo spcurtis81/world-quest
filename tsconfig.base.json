@@ -2,15 +2,20 @@
   "compilerOptions": {
     "target": "ES2022",
     "module": "ESNext",
-    "moduleResolution": "NodeNext",
-    "strict": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
+    "moduleResolution": "Bundler",
     "resolveJsonModule": true,
+    "allowJs": false,
+    "strict": true,
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    "esModuleInterop": true,
     "baseUrl": ".",
     "paths": {
-      "@world-quest/lib": ["packages/lib/src"],
-      "@world-quest/ui": ["packages/ui/src"]
+      "@ui/*": ["packages/ui/src/*"],
+      "@lib/*": ["packages/lib/src/*"],
+      "@lib/shared/*": ["packages/lib/src/*"],
+      "@lib/shared": ["packages/lib/src/index.ts"],
+      "@config/*": ["packages/config/*"]
     },
     "types": ["node"]
   },
