@@ -109,3 +109,22 @@ test("flag quiz shows an image if available", async ({ page }) => {
   const seenImage = await maybeImg.first().isVisible().catch(()=>false);
   expect(seenHeading || seenImage).toBeTruthy();
 });
+
+test("round of 3 renders at least one flag image", async ({ page }) => {
+  await page.goto("/flag-quiz?n=3&seed=1200");
+  const options = page.locator("main ul >> role=button");
+  await options.first().waitFor({ state: "visible" });
+  // Click first option, go next twice
+  let sawImage = false;
+  for (let i=0;i<3;i++){
+    const img = page.locator("img").first();
+    if (await img.isVisible().catch(()=>false)) sawImage = true;
+    await options.first().click();
+    await page.getByText(/Correct|Incorrect/).waitFor();
+    if (i<2) {
+      await page.getByTestId("next").click();
+      await options.first().waitFor({ state: "visible" });
+    }
+  }
+  expect(sawImage).toBeTruthy();
+});
