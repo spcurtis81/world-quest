@@ -66,6 +66,12 @@ export const COUNTRIES: Country[] = [
   { code: "VN", name: "Vietnam" }
 ];
 
+/**
+ * Sprint 3 TODOs:
+ * - Add image files for flags (SVGs) under apps/web/public/flags/<CODE>.svg
+ * - Optionally extend Country to include an image filename; API can derive URL: /flags/<CODE>.svg
+ */
+
 export function seededRandom(seed: number) {
   // simple LCG for determinism
   let s = seed % 2147483647;

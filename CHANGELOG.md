@@ -14,3 +14,9 @@
 - “Next Question” flow
 - Session score (frontend state)
 - E2E tests for feedback/Next/score (green)
+
+## 0.3.0 – Sprint 3 (planned)
+- Round gameplay (N questions + summary)
+- Flag images (accessible)
+- Restart flow
+- E2E for full round

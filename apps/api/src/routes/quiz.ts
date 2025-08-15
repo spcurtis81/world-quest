@@ -6,7 +6,8 @@ const FlagQuestion = z.object({
   id: z.string(),
   question: z.string(),
   options: z.array(z.object({ id: z.string(), label: z.string() })).length(4),
-  correctId: z.string()
+  correctId: z.string(),
+  imageUrl: z.string().optional()
 });
 
 export default async function quizRoutes(fastify: FastifyInstance) {
@@ -27,7 +28,8 @@ export default async function quizRoutes(fastify: FastifyInstance) {
       id: `flag-${correct.code}`,
       question: "Which country’s flag is shown?",
       options: all,
-      correctId: correct.code
+      correctId: correct.code,
+      imageUrl: `/flags/${correct.code}.svg`
     };
 
     // validate before sending

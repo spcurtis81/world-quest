@@ -4,7 +4,7 @@
 import React from "react";
 
 type Option = { id: string; label: string };
-type Q = { id: string; question: string; options: Option[]; correctId: string };
+type Q = { id: string; question: string; options: Option[]; correctId: string; imageUrl?: string };
 
 export default function FlagQuizPage() {
   const [q, setQ] = React.useState<Q | null>(null);
@@ -45,7 +45,14 @@ export default function FlagQuizPage() {
       {status === "loading" && <p>Loading…</p>}
 
       {q && (
-        <section style={{ marginTop: 16 }}>
+        <section aria-label="Flag quiz question" style={{ marginTop: 16 }}>
+          {q?.imageUrl && (
+            <img
+              src={q.imageUrl}
+              alt={q?.id ? `Flag of question ${q.id}` : "Flag for current question"}
+              style={{ maxWidth: 320, height: "auto", display: "block", marginBottom: 12 }}
+            />
+          )}
           <h2 style={{ marginBottom: 8 }}>{q.question}</h2>
           <p style={{ fontStyle: "italic", marginTop: 0 }}>(Pretend there is a flag image here)</p>
           <ul aria-label="Answer options" style={{ listStyle: "none", padding: 0, display: "grid", gap: 8 }}>
