@@ -38,3 +38,9 @@
 - Real flag images via CDN/local toggle with fallback
 - Mobile layout/tap-target polish
 - Accessibility improvements
+
+## 0.5.0 – Sprint 5
+- Real flag images via CDN/local toggle with fallback
+- Mobile layout polish (responsive container, tap targets, focus-visible)
+- Accessibility improvements (keyboard flow, ARIA labels/roles)
+- E2E for image presence (smoke), mobile viewport, keyboard navigation

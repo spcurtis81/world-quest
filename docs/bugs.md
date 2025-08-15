@@ -8,3 +8,5 @@
 | 5  | Duplicate Next.js pages warnings | Fixed | Web | 0.1.0 | 0.1.0 | Removed redundant `.js` files shadowing `.ts/.tsx`. |
 
 |  –  | (none this sprint) |  –  |  –  | 0.2.0 |  –  |  –  |
+
+No new bugs were recorded in Sprint 5.

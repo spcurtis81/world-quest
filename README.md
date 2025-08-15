@@ -32,18 +32,17 @@ GitHub Actions runs typecheck, lint, and tests on pull requests.
 
 ## Current Features
 
-- Flag Quiz (`/flag-quiz`): multi‑question rounds with answer feedback, Next/Finish, end-of-round summary with score and percent, restart (Play Again), recent games history (localStorage, last 5), difficulty selector (easy/medium/hard), and flag images when available.
+- Flag Quiz (`/flag-quiz`): multi‑question rounds with answer feedback, Next/Finish, end-of-round summary with score and percent, restart (Play Again), recent games history (localStorage, last 5), difficulty selector (easy/medium/hard), and real flag images when CDN is enabled (local placeholder otherwise).
 
 ## API Endpoints
 
 - `GET /healthz` – API health
-- `GET /v1/ping` – API ping
-- `GET /v1/quiz/flag?seed=<int>&options=<4|6|8>` – Flag question; deterministic with `seed`; number of options controlled by `options`
+- `GET /v1/ping` – ping
+- `GET /v1/quiz/flag?seed=<int>&options=<4|6|8>` – Single question; deterministic with `seed`; number of options controlled by `options`; may include `imageUrl`.
 
-## Web Pages
+## Web Health
 
-- `/` – landing page
-- `/flag-quiz` – quiz UI (feedback + Next + session score)
+- `GET /healthz` – web health page
 - `/healthz` – web health check
 
 ## Health Checks
@@ -51,8 +50,13 @@ GitHub Actions runs typecheck, lint, and tests on pull requests.
 - Web: `GET /healthz`
 - API: `GET /healthz`
 
+## Environment Variables
+
+- `NEXT_PUBLIC_API_URL` – default `http://localhost:4000`
+- `USE_FLAG_CDN` (true|false), `FLAG_CDN_BASE` (default `https://flagcdn.com`), `FLAG_CDN_FORMAT` (`svg` or `png`), `FLAG_CDN_SIZE` (e.g. `w320` for png)
+
 ## Quick start
 
-- `pnpm dev` runs API and Web together (API on 4000, Web on 3000)
-- Configure `.env` as needed, e.g. `NEXT_PUBLIC_API_URL=http://localhost:4000`
- - History: recent games are stored locally in your browser (last 5)
+- `cp .env.example .env`
+- `pnpm i` then `pnpm dev`
+- E2E: keep dev servers running, then `pnpm -C tests e2e`
