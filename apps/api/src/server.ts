@@ -1,3 +1,15 @@
+import dotenv from "dotenv";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+// ESM-safe __dirname
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Load apps/api/.env (closest)
+dotenv.config();
+// Also load repo root .env as fallback
+dotenv.config({ path: path.resolve(__dirname, "../../..", ".env") });
 import Fastify from "fastify";
 import cors from "@fastify/cors";
 import healthRoutes from "./routes/health.js";

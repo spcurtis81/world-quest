@@ -54,6 +54,7 @@ GitHub Actions runs typecheck, lint, and tests on pull requests.
 
 - `NEXT_PUBLIC_API_URL` – default `http://localhost:4000`
 - `USE_FLAG_CDN` (true|false), `FLAG_CDN_BASE` (default `https://flagcdn.com`), `FLAG_CDN_FORMAT` (`svg` or `png`), `FLAG_CDN_SIZE` (e.g. `w320` for png)
+  - `USE_FLAG_CDN` (true|false) – when true, API returns `imageUrl` from `FLAG_CDN_BASE`; else falls back to local placeholder
 
 ## Quick start
 
