@@ -14,6 +14,16 @@ test.beforeAll(async () => {
   await waitForHttp(WEB_HEALTH, { timeoutMs: 20_000, intervalMs: 500 });
 });
 
+// Helper to select region and confirm modal if shown (Sprint 7A)
+async function selectRegionWithConfirm(page: any, value: "ALL"|"EU"|"AF"|"AS"|"AM"|"OC") {
+  await page.selectOption('select[aria-label="Region"], select[aria-label="Region (stub)"]', value);
+  const modal = page.getByTestId("region-change-modal");
+  if (await modal.isVisible().catch(() => false)) {
+    await page.getByTestId("region-modal-confirm").click();
+    await modal.waitFor({ state: "hidden" });
+  }
+}
+
 test("home loads", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByRole("heading", { name: /Web is live/i })).toBeVisible();
@@ -261,8 +271,8 @@ test("region filter limits flags to selected region", async ({ page }) => {
   // Use a fixed seed + n so the sequence is deterministic and finite.
   await page.goto("/flag-quiz?n=5&seed=7000");
 
-  // Select region = Europe in the UI
-  await page.selectOption('select[aria-label="Region (stub)"], select[aria-label="Region"]', "EU");
+  // Select region = Europe in the UI (confirm modal if present)
+  await selectRegionWithConfirm(page, "EU");
 
   // Ensure the first question is on screen
   const options = page.locator("main ul >> role=button");
@@ -328,6 +338,37 @@ test("summary includes per-question review with correctness (stub)", async ({ pa
   await review.first().waitFor({ state: "visible" });
   const text = await review.textContent();
   expect(text).toBeTruthy();
+});
+
+test("infinite round updates attempted and allows manual end", async ({ page }) => {
+  await page.goto("/flag-quiz?seed=7200");
+  await page.selectOption('select[aria-label="Round length"]', "INF");
+
+  const options = page.locator("main ul >> role=button");
+  await options.first().waitFor({ state: "visible" });
+
+  for (let i = 0; i < 3; i++) {
+    await options.first().click();
+    await page.getByText(/Correct|Incorrect/).waitFor();
+    await page.getByTestId("next").click();
+    await options.first().waitFor({ state: "visible" });
+  }
+
+  await page.getByTestId("end-round").click();
+  await page.getByTestId("summary-heading").waitFor();
+  await expect(page.getByText(/Stats so far:\s*\d+\s*correct\s*\/\s*\d+\s*attempted/)).toBeVisible();
+});
+
+test("summary shows 'stats so far' when infinite", async ({ page }) => {
+  await page.goto("/flag-quiz?seed=7300");
+  await page.selectOption('select[aria-label="Round length"]', "INF");
+  const options = page.locator("main ul >> role=button");
+  await options.first().waitFor({ state: "visible" });
+  await options.first().click();
+  await page.getByText(/Correct|Incorrect/).waitFor();
+  await page.getByTestId("end-round").click();
+  await page.getByTestId("summary-heading").waitFor();
+  await expect(page.getByText(/Stats so far:\s*\d+\s*correct\s*\/\s*\d+\s*attempted/)).toBeVisible();
 });
 
 test("changing region mid-round shows confirmation modal and restarts on confirm", async ({ page }) => {

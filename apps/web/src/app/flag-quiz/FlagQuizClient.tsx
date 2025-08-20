@@ -125,12 +125,30 @@ export default function FlagQuizClient({ initialRoundSize, initialSeed }: Props)
         <button type="button" aria-label="Start Round (stub)" style={{ minHeight: 44, padding: "12px 14px" }}>Start Round</button>
       </div>
       <div style={{ display: "flex", gap: 12, alignItems: "center", marginTop: 8, flexWrap: "wrap" }}>
-        {/* Sprint 6 STUB: round length */}
+        {/* Sprint 7 STUB: Infinite round */}
         <label>Round length:&nbsp;
-          <select aria-label="Round length (stub)" value={String(roundSize)} onChange={e => setRoundSize(Number(e.target.value))}>
+          <select
+            aria-label="Round length"
+            value={isInfinite ? "INF" : String(roundSize)}
+            onChange={(e) => {
+              const v = e.currentTarget.value;
+              if (v === "INF") {
+                setIsInfinite(true);
+              } else {
+                setIsInfinite(false);
+                setRoundSize(Number(v));
+              }
+              if (phase !== "question") {
+                setQuestionIndex(0);
+                setChosen(null);
+                load(0, undefined, region);
+              }
+            }}
+          >
             <option value="5">5</option>
             <option value="10">10</option>
             <option value="20">20</option>
+            <option value="INF">∞</option>
           </select>
         </label>
         {/* Sprint 7 STUB: Region */}
@@ -164,9 +182,11 @@ export default function FlagQuizClient({ initialRoundSize, initialSeed }: Props)
       {phase === "summary" ? (
         <section aria-label="Round summary" style={{ marginTop: 16 }}>
           <h1 data-testid="summary-heading">Round complete</h1>
-          <p data-testid="summary-score">
-            Score: {scoreCorrect} / {scoreTotal} ({Math.round((scoreCorrect / Math.max(1, scoreTotal)) * 100)}%)
-          </p>
+          {isInfinite ? (
+            <p data-testid="summary-score">Stats so far: {scoreCorrect} correct / {scoreTotal} attempted</p>
+          ) : (
+            <p data-testid="summary-score">Score: {scoreCorrect} / {scoreTotal} ({Math.round((scoreCorrect / Math.max(1, scoreTotal)) * 100)}%)</p>
+          )}
           <ul aria-label="Round review">
             {roundResults.map((r, i) => (
               <li key={i}>
@@ -200,7 +220,9 @@ export default function FlagQuizClient({ initialRoundSize, initialSeed }: Props)
       ) : (
         q && (
           <section aria-label="Flag quiz question" style={{ marginTop: 16 }}>
-            <div style={{ fontSize: 14, color: "#555", marginBottom: 8 }}>Question {questionIndex + 1} of {roundSize}</div>
+            <div style={{ fontSize: 14, color: "#555", marginBottom: 8 }}>
+              {isInfinite ? `Question ${questionIndex + 1}` : `Question ${questionIndex + 1} of ${roundSize}`}
+            </div>
             {q?.imageUrl && (
               <img
                 src={q.imageUrl}
@@ -257,11 +279,14 @@ export default function FlagQuizClient({ initialRoundSize, initialSeed }: Props)
                 {chosen === q.correctId ? "✅ Correct!" : "❌ Incorrect"}
               </p>
             )}
-            {phase === "question" && questionIndex < roundSize - 1 && (
+            {phase === "question" && (isInfinite || questionIndex < roundSize - 1) && (
               <button aria-label="Next Question" style={{ minHeight: 44, padding: "12px 14px" }} onClick={() => { const next = questionIndex + 1; setQuestionIndex(next); setChosen(null); load(next); }} data-testid="next">Next Question</button>
             )}
-            {phase === "question" && questionIndex === roundSize - 1 && (
+            {phase === "question" && !isInfinite && questionIndex === roundSize - 1 && (
               <button aria-label="Finish Round" style={{ minHeight: 44, padding: "12px 14px" }} onClick={() => { setPhase("summary"); }} data-testid="finish">Finish Round</button>
+            )}
+            {phase === "question" && isInfinite && (
+              <button data-testid="end-round" onClick={() => setPhase("summary")} style={{ minHeight: 36, padding: "8px 12px", marginLeft: 8 }}>End round</button>
             )}
           </section>
         )
