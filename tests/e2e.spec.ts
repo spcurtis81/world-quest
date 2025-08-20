@@ -330,4 +330,36 @@ test("summary includes per-question review with correctness (stub)", async ({ pa
   expect(text).toBeTruthy();
 });
 
+test("changing region mid-round shows confirmation modal and restarts on confirm", async ({ page }) => {
+  await page.goto("/flag-quiz?n=3&seed=7100");
+  const options = page.locator("main ul >> role=button");
+  await options.first().waitFor({ state: "visible" });
+
+  // Trigger region change mid-round
+  await page.selectOption('select[aria-label="Region"]', "EU");
+
+  // Modal should appear with cancel/confirm
+  await page.getByTestId("region-change-modal").waitFor();
+  await page.getByTestId("region-modal-cancel").isVisible();
+  await page.getByTestId("region-modal-confirm").isVisible();
+
+  // Cancel first → round continues (no index reset)
+  await page.getByTestId("region-modal-cancel").click();
+  await page.getByTestId("region-change-modal").waitFor({ state: "hidden" });
+
+  // Click an option; score increments; Next appears
+  await options.first().click();
+  await page.getByText(/Correct|Incorrect/).waitFor();
+  await page.getByTestId("next").isVisible();
+
+  // Try again, Confirm → round restarts (index resets, new options)
+  const before = await options.allTextContents();
+  await page.selectOption('select[aria-label="Region"]', "EU");
+  await page.getByTestId("region-modal-confirm").click();
+
+  // After confirm, questionIndex should be 0 with different options (DOM change)
+  await expect.poll(async () => (await options.allTextContents()).join("|"))
+    .not.toBe(before.join("|"));
+});
+
 

@@ -20,14 +20,18 @@ export default function FlagQuizClient({ initialRoundSize, initialSeed }: Props)
   const [scoreCorrect, setScoreCorrect] = React.useState(0);
   const [scoreTotal, setScoreTotal] = React.useState(0);
   const [difficulty, setDifficulty] = React.useState<"easy"|"medium"|"hard">("easy");
-  const [region, setRegion] = React.useState<string>("ALL");
+  const [region, setRegion] = React.useState<"ALL"|"EU"|"AF"|"AS"|"AM"|"OC">("ALL");
+  // Sprint 7 stubs (unused until implementation)
+  const [isRegionModalOpen, setIsRegionModalOpen] = React.useState(false);
+  const [pendingRegion, setPendingRegion] = React.useState<"ALL"|"EU"|"AF"|"AS"|"AM"|"OC">("ALL");
+  const [isInfinite, setIsInfinite] = React.useState(false);
   const firstOptionRef = React.useRef<HTMLButtonElement | null>(null);
   const [seedBase] = React.useState<number>(() => (initialSeed ?? Math.floor(Math.random() * 1e6)));
   function seedFor(i: number) { return seedBase + i; }
   const [history, setHistory] = React.useState<GameResult[]>([]);
   const [roundResults, setRoundResults] = React.useState<Array<{ code: string; correctLabel: string; chosenId: string | null; isCorrect: boolean; imageUrl?: string }>>([]);
 
-  async function load(indexToLoad?: number, overrideSeed?: number) {
+  async function load(indexToLoad?: number, overrideSeed?: number, regionOverride?: string) {
     setStatus("loading");
     setChosen(null);
     const url = new URL((process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000") + "/v1/quiz/flag");
@@ -37,7 +41,7 @@ export default function FlagQuizClient({ initialRoundSize, initialSeed }: Props)
     url.searchParams.set("index", String(idx));
     const optsMap = { easy: 4, medium: 6, hard: 8 } as const;
     url.searchParams.set("options", String(optsMap[difficulty]));
-    url.searchParams.set("region", String(region));
+    url.searchParams.set("region", String(regionOverride ?? region));
     const res = await fetch(url.toString(), { cache: "no-store" });
     const data = await res.json();
     setQ(data);
@@ -50,6 +54,16 @@ export default function FlagQuizClient({ initialRoundSize, initialSeed }: Props)
     setQuestionIndex(0);
     load(seedFor(0));
   // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  // Persist region in-session
+  React.useEffect(() => { try { if (typeof window !== "undefined") sessionStorage.setItem("region", region); } catch {} }, [region]);
+  React.useEffect(() => {
+    try {
+      if (typeof window !== "undefined") {
+        const saved = sessionStorage.getItem("region") as any;
+        if (saved) setRegion(saved);
+      }
+    } catch {}
   }, []);
   React.useEffect(() => {
     if (status === "ready" && q && !chosen) {
@@ -119,9 +133,22 @@ export default function FlagQuizClient({ initialRoundSize, initialSeed }: Props)
             <option value="20">20</option>
           </select>
         </label>
-        {/* Sprint 6 STUB: region filter */}
+        {/* Sprint 7 STUB: Region */}
         <label>Region:&nbsp;
-          <select aria-label="Region (stub)" value={region} onChange={e => setRegion(e.target.value)}>
+          <select aria-label="Region" value={region} onChange={e => {
+            const newValue = e.currentTarget.value as any;
+            if (phase === "question" && newValue !== region) {
+              setPendingRegion(newValue);
+              setIsRegionModalOpen(true);
+            } else {
+              setRegion(newValue);
+              if (phase !== "question") {
+                setQuestionIndex(0);
+                setChosen(null);
+                load(0, undefined, newValue);
+              }
+            }
+          }}>
             <option value="ALL">World</option>
             <option value="EU">Europe</option>
             <option value="AF">Africa</option>
@@ -250,6 +277,25 @@ export default function FlagQuizClient({ initialRoundSize, initialSeed }: Props)
         <button type="button" aria-label="Play Again (stub)">Play Again</button>
       </section>
       </div>
+      {/* Sprint 7 STUB: Region-change modal */}
+      <dialog data-testid="region-change-modal" open={isRegionModalOpen} aria-label="Region change confirmation">
+        <p>Changing region will abandon the current round and start a new one. Continue?</p>
+        <div>
+          <button data-testid="region-modal-cancel" onClick={() => { setIsRegionModalOpen(false); setPendingRegion(region); }}>Cancel</button>
+          <button data-testid="region-modal-confirm" onClick={() => {
+            setIsRegionModalOpen(false);
+            const newReg = pendingRegion;
+            setRegion(newReg);
+            setPhase("question");
+            setQuestionIndex(0);
+            setChosen(null);
+            setScoreCorrect(0);
+            setScoreTotal(0);
+            setRoundResults([]);
+            load(0, undefined, newReg);
+          }}>Confirm</button>
+        </div>
+      </dialog>
       {/* Sprint 6 STUB: per-question summary */}
       <section aria-label="Round review (stub)" hidden>
         <h3>Review (stub)</h3>
