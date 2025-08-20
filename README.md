@@ -61,3 +61,13 @@ GitHub Actions runs typecheck, lint, and tests on pull requests.
 - `cp .env.example .env`
 - `pnpm i` then `pnpm dev`
 - E2E: keep dev servers running, then `pnpm -C tests e2e`
+
+## Knowledge Base
+- Sprint docs:
+  - `docs/sprints/sprint-01.md` … `docs/sprints/sprint-07.md`, `docs/sprint-08.md`
+- Story docs (Sprint 8):
+  - `docs/stories/story-8A-stats-page.md`
+  - `docs/stories/story-8B-region-change-confirmation.md`
+  - `docs/stories/story-8C-dark-mode.md`
+  - `docs/stories/story-8D-ui-consistency-polish.md`
+- Backlog: `docs/backlog.md`

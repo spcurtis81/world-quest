@@ -1,6 +1,6 @@
 "use client";
 import * as React from "react";
-import { HISTORY_KEY, addToHistory, type GameResult } from "@lib/shared";
+import { HISTORY_KEY, addToHistory, type GameResult, pushStat, type RoundResultSummary } from "@lib/shared";
 
 type Option = { id: string; label: string };
 type Q = { id: string; question: string; options: Option[]; correctId: string; imageUrl?: string };
@@ -85,6 +85,20 @@ export default function FlagQuizClient({ initialRoundSize, initialSeed }: Props)
           const next = addToHistory(existing, entry, 5);
           localStorage.setItem(HISTORY_KEY, JSON.stringify(next));
           setHistory(next);
+
+          // Stats: push summary
+          const optsMap = { easy: 4, medium: 6, hard: 8 } as const;
+          const optionsCount = optsMap[difficulty];
+          const stat: RoundResultSummary = {
+            finishedAt: new Date().toISOString(),
+            region,
+            optionsCount,
+            mode: isInfinite ? "infinite" : "finite",
+            n: isInfinite ? undefined : roundSize,
+            correct: scoreCorrect,
+            total: scoreTotal,
+          };
+          pushStat(stat);
         }
       } catch {
         setHistory([]);
@@ -211,6 +225,7 @@ export default function FlagQuizClient({ initialRoundSize, initialSeed }: Props)
               ))
             )}
           </ul>
+          <a href="/stats" data-testid="go-stats" style={{ marginRight: 8 }}>View stats</a>
           <button aria-label="Play Again" onClick={() => {
             setScoreCorrect(0); setScoreTotal(0); setQuestionIndex(0); setChosen(null);
             setRoundResults([]);

@@ -175,6 +175,21 @@ test("shows summary screen with percent and restart", async ({ page }) => {
   await clickAndAwaitRestart(page, options, before);
 });
 
+test("stats page lists finished rounds", async ({ page }) => {
+  await page.goto("/flag-quiz?n=3&seed=8001");
+  const options = page.locator("main ul >> role=button");
+  await options.first().waitFor({ state: "visible" });
+  for (let i = 0; i < 3; i++) {
+    await options.first().click();
+    await page.getByText(/Correct|Incorrect/).waitFor();
+    if (i < 2) await page.getByTestId("next").click();
+    else await page.getByTestId("finish").click();
+  }
+  await page.getByTestId("summary-heading").waitFor();
+  await page.getByTestId("go-stats").click();
+  await page.getByTestId("stats-table").waitFor();
+});
+
 test("difficulty medium returns 6 options", async ({ page }) => {
   await page.goto("/flag-quiz?n=1&seed=3000");
   await page.selectOption('select[aria-label="Difficulty"]', 'medium');
