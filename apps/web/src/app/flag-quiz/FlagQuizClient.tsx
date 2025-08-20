@@ -26,6 +26,10 @@ export default function FlagQuizClient({ initialRoundSize, initialSeed }: Props)
   const [pendingRegion, setPendingRegion] = React.useState<"ALL"|"EU"|"AF"|"AS"|"AM"|"OC">("ALL");
   const [isInfinite, setIsInfinite] = React.useState(false);
   const firstOptionRef = React.useRef<HTMLButtonElement | null>(null);
+  const regionSelectRef = React.useRef<HTMLSelectElement | null>(null);
+  const prevFocusRef = React.useRef<HTMLElement | null>(null);
+  const modalCancelRef = React.useRef<HTMLButtonElement | null>(null);
+  const modalConfirmRef = React.useRef<HTMLButtonElement | null>(null);
   const [seedBase] = React.useState<number>(() => (initialSeed ?? Math.floor(Math.random() * 1e6)));
   function seedFor(i: number) { return seedBase + i; }
   const [history, setHistory] = React.useState<GameResult[]>([]);
@@ -167,7 +171,7 @@ export default function FlagQuizClient({ initialRoundSize, initialSeed }: Props)
         </label>
         {/* Sprint 7 STUB: Region */}
         <label>Region:&nbsp;
-          <select aria-label="Region" value={region} onChange={e => {
+          <select aria-label="Region" ref={regionSelectRef} value={region} onChange={e => {
             const newValue = e.currentTarget.value as any;
             if (phase === "question" && newValue !== region) {
               setPendingRegion(newValue);
@@ -317,25 +321,64 @@ export default function FlagQuizClient({ initialRoundSize, initialSeed }: Props)
         <button type="button" aria-label="Play Again (stub)">Play Again</button>
       </section>
       </div>
-      {/* Sprint 7 STUB: Region-change modal */}
-      <dialog data-testid="region-change-modal" open={isRegionModalOpen} aria-label="Region change confirmation">
+      {/* Region-change overlay modal */}
+      {isRegionModalOpen && (
+        <div data-testid="modal-backdrop" style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.35)', zIndex: 1000 }} />
+      )}
+      <dialog
+        data-testid="region-change-modal"
+        open={isRegionModalOpen}
+        aria-modal="true"
+        role="dialog"
+        aria-labelledby="region-modal-title"
+        style={{ maxWidth: 420, width: 'calc(100% - 2rem)', border: 'none', padding: '1rem', borderRadius: 8, position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', zIndex: 1001 }}
+        onKeyDown={(e) => {
+          if (!isRegionModalOpen) return;
+          if (e.key === 'Escape') {
+            e.preventDefault();
+            setIsRegionModalOpen(false);
+            setPendingRegion(region);
+            setTimeout(() => regionSelectRef.current?.focus(), 0);
+          }
+          if (e.key === 'Tab') {
+            const focusables = [modalCancelRef.current, modalConfirmRef.current].filter(Boolean) as HTMLElement[];
+            if (focusables.length === 0) return;
+            const current = document.activeElement as HTMLElement | null;
+            const idx = focusables.findIndex(el => el === current);
+            e.preventDefault();
+            if (e.shiftKey) {
+              const next = idx <= 0 ? focusables[focusables.length - 1] : focusables[idx - 1];
+              next?.focus();
+            } else {
+              const next = idx === -1 || idx === focusables.length - 1 ? focusables[0] : focusables[idx + 1];
+              next?.focus();
+            }
+          }
+        }}
+      >
+        <h2 id="region-modal-title" style={{ marginTop: 0 }}>Change region?</h2>
         <p>Changing region will abandon the current round and start a new one. Continue?</p>
-        <div>
-          <button data-testid="region-modal-cancel" onClick={() => { setIsRegionModalOpen(false); setPendingRegion(region); }}>Cancel</button>
-          <button data-testid="region-modal-confirm" onClick={() => {
+        <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+          <button ref={modalCancelRef} data-testid="region-modal-cancel" onClick={() => { setIsRegionModalOpen(false); setPendingRegion(region); setTimeout(() => regionSelectRef.current?.focus(), 0); }}>Cancel</button>
+          <button ref={modalConfirmRef} data-testid="region-modal-confirm" autoFocus onClick={() => {
             setIsRegionModalOpen(false);
             const newReg = pendingRegion;
             setRegion(newReg);
-            setPhase("question");
+            setPhase('question');
             setQuestionIndex(0);
             setChosen(null);
             setScoreCorrect(0);
             setScoreTotal(0);
             setRoundResults([]);
             load(0, undefined, newReg);
+            setTimeout(() => regionSelectRef.current?.focus(), 0);
           }}>Confirm</button>
         </div>
       </dialog>
+
+      {isRegionModalOpen && (
+        <FocusTrap onActivate={() => { prevFocusRef.current = (document.activeElement as HTMLElement) ?? null; setTimeout(() => modalConfirmRef.current?.focus(), 0); }} onDeactivate={() => { setTimeout(() => regionSelectRef.current?.focus(), 0); }} />
+      )}
       {/* Sprint 6 STUB: per-question summary */}
       <section aria-label="Round review (stub)" hidden>
         <h3>Review (stub)</h3>

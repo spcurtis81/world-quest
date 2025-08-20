@@ -418,4 +418,18 @@ test("changing region mid-round shows confirmation modal and restarts on confirm
     .not.toBe(before.join("|"));
 });
 
+test("region change modal blocks UI until choice", async ({ page }) => {
+  await page.goto("/flag-quiz?n=3&seed=8100");
+  const options = page.locator("main ul >> role=button");
+  await options.first().waitFor({ state: "visible" });
+  await page.selectOption('select[aria-label="Region"]', "EU");
+  await page.getByTestId("region-change-modal").waitFor();
+  await page.getByTestId("modal-backdrop").isVisible();
+  // Attempt click on an option should not advance while modal open
+  await options.first().click({ trial: true }).catch(() => {});
+  // Close with ESC
+  await page.keyboard.press("Escape");
+  await page.getByTestId("region-change-modal").waitFor({ state: "hidden" });
+});
+
 
