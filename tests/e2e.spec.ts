@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { FLAG_POOL_STUB } from "@lib/shared";
 import { waitForHttp } from "./utils/wait";
 
 const PORT_API = Number(process.env.PORT_API ?? 4000);
@@ -254,8 +255,49 @@ test("round of 20 uses unique flags (stub)", async ({ page }) => {
   expect(seen.size).toBeGreaterThanOrEqual(20);
 });
 
-test.skip("region filter limits flags to selected region (stub)", async ({ page }) => {
-  // TODO: Choose Region=Europe and assert only EU codes appear during the round.
+const EU_CODES = new Set(FLAG_POOL_STUB.filter(f => f.region === "EU").map(f => f.code.toUpperCase()));
+
+test("region filter limits flags to selected region", async ({ page }) => {
+  // Use a fixed seed + n so the sequence is deterministic and finite.
+  await page.goto("/flag-quiz?n=5&seed=7000");
+
+  // Select region = Europe in the UI
+  await page.selectOption('select[aria-label="Region (stub)"], select[aria-label="Region"]', "EU");
+
+  // Ensure the first question is on screen
+  const options = page.locator("main ul >> role=button");
+  await options.first().waitFor({ state: "visible" });
+
+  // Helper to extract a 2-letter code from the flag <img src=...>
+  async function readCode() {
+    const img = page.locator("img[alt='Flag'], img[alt^='Flag ']");
+    await img.first().waitFor({ state: "visible" });
+    const src = await img.first().getAttribute("src");
+    if (!src) throw new Error("No flag image src found");
+    // Match .../xx.svg or .../w320/xx.png or /flags/XX.svg
+    const m = src.match(/\/([A-Za-z]{2})\.(svg|png)\b/);
+    if (!m) throw new Error(`Could not parse code from src=${src}`);
+    return m[1].toUpperCase();
+  }
+
+  // Check all 5 questions in the round
+  for (let i = 0; i < 5; i++) {
+    const code = await readCode();
+    if (!EU_CODES.has(code)) {
+      throw new Error(`Flag code ${code} not in EU set`);
+    }
+    // Answer and move on
+    await options.first().click();
+    await page.getByText(/Correct|Incorrect/).waitFor();
+    if (i < 4) {
+      await page.getByTestId("next").click();
+      // Wait for options change before next iteration
+      await options.first().waitFor({ state: "visible" });
+    } else {
+      await page.getByTestId("finish").click();
+      await page.getByTestId("summary-heading").waitFor();
+    }
+  }
 });
 
 test("summary includes per-question review with correctness (stub)", async ({ page }) => {
