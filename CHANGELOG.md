@@ -44,3 +44,9 @@
 - Mobile layout polish (responsive container, tap targets, focus-visible)
 - Accessibility improvements (keyboard flow, ARIA labels/roles)
 - E2E for image presence (smoke), mobile viewport, keyboard navigation
+
+## 0.6.0 – Sprint 6 (planned)
+- Expand question pool; no repeats per round
+- Round length & progression indicator
+- Summary review with per-question breakdown
+- Region filter (Europe/Africa/Asia/Americas/Oceania)

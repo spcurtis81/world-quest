@@ -2,6 +2,7 @@ import { FastifyInstance } from "fastify";
 import { z } from "zod";
 import { COUNTRIES, seededRandom, pickDistinct } from "@lib/shared/flags.data";
 import { FLAG_IMAGE_CODES } from "@lib/shared/flags.images";
+import { FLAG_POOL_STUB, type FlagMeta } from "@lib/shared";
 
 const FlagQuestion = z.object({
   id: z.string(),
@@ -24,6 +25,8 @@ export default async function quizRoutes(fastify: FastifyInstance) {
     const desired = [4, 6, 8].includes(options ?? 0) ? (options as number) : 4;
     const correct = pickDistinct(rand, COUNTRIES, 1)[0];
     const distractors = pickDistinct(rand, COUNTRIES.filter(c => c.code !== correct.code), desired - 1);
+    // Sprint 6 TODO: select from FLAG_POOL_STUB (or full list) with optional ?region=EU|AF|AS|AM|OC
+    // Sprint 6 TODO: ensure per-round uniqueness and desired options count
 
     const all = [correct, ...distractors].map(c => ({ id: c.code, label: c.name }));
     // Fisher–Yates shuffle using rand() for seed stability when provided

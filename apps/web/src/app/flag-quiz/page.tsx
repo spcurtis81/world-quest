@@ -1,12 +1,13 @@
 import FlagQuizClient from "./FlagQuizClient";
 
-export default function Page({
+export default async function Page({
   searchParams,
 }: {
-  searchParams: { n?: string; seed?: string };
+  searchParams: Promise<{ n?: string; seed?: string }>;
 }) {
-  const nRaw = searchParams?.n ?? "10";
-  const seedRaw = searchParams?.seed ?? undefined;
+  const sp = await searchParams;
+  const nRaw = sp?.n ?? "10";
+  const seedRaw = sp?.seed ?? undefined;
   const n = Number(nRaw);
   const initialRoundSize = Number.isFinite(n) && n > 0 ? n : 10;
 

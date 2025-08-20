@@ -235,4 +235,16 @@ test("keyboard navigation works for options", async ({ page }) => {
   await page.getByText(/Correct|Incorrect/).waitFor();
 });
 
+test.skip("round of 20 uses unique flags (stub)", async ({ page }) => {
+  // TODO: Start a round with n=20 and assert no duplicate questions appear within the round.
+});
+
+test.skip("region filter limits flags to selected region (stub)", async ({ page }) => {
+  // TODO: Choose Region=Europe and assert only EU codes appear during the round.
+});
+
+test.skip("summary includes per-question review with correctness (stub)", async ({ page }) => {
+  // TODO: Finish a short round with at least one wrong answer and assert the review list shows ✅/❌ lines.
+});
+
 

@@ -104,6 +104,27 @@ export default function FlagQuizClient({ initialRoundSize, initialSeed }: Props)
         </label>
         <button type="button" aria-label="Start Round (stub)" style={{ minHeight: 44, padding: "12px 14px" }}>Start Round</button>
       </div>
+      <div style={{ display: "flex", gap: 12, alignItems: "center", marginTop: 8, flexWrap: "wrap" }}>
+        {/* Sprint 6 STUB: round length */}
+        <label>Round length:&nbsp;
+          <select aria-label="Round length (stub)" defaultValue="10">
+            <option value="5">5</option>
+            <option value="10">10</option>
+            <option value="20">20</option>
+          </select>
+        </label>
+        {/* Sprint 6 STUB: region filter */}
+        <label>Region:&nbsp;
+          <select aria-label="Region (stub)" defaultValue="ALL">
+            <option value="ALL">World</option>
+            <option value="EU">Europe</option>
+            <option value="AF">Africa</option>
+            <option value="AS">Asia</option>
+            <option value="AM">Americas</option>
+            <option value="OC">Oceania</option>
+          </select>
+        </label>
+      </div>
 
       {status === "loading" && <p>Loading…</p>}
 
@@ -200,6 +221,14 @@ export default function FlagQuizClient({ initialRoundSize, initialSeed }: Props)
         <button type="button" aria-label="Play Again (stub)">Play Again</button>
       </section>
       </div>
+      {/* Sprint 6 STUB: per-question summary */}
+      <section aria-label="Round review (stub)" hidden>
+        <h3>Review (stub)</h3>
+        <ul>
+          <li>Q1 — ✅ Switzerland</li>
+          <li>Q2 — ❌ Germany</li>
+        </ul>
+      </section>
     </main>
   );
 }
