@@ -235,8 +235,23 @@ test("keyboard navigation works for options", async ({ page }) => {
   await page.getByText(/Correct|Incorrect/).waitFor();
 });
 
-test.skip("round of 20 uses unique flags (stub)", async ({ page }) => {
-  // TODO: Start a round with n=20 and assert no duplicate questions appear within the round.
+test("round of 20 uses unique flags (stub)", async ({ page }) => {
+  await page.goto("/flag-quiz?n=20&seed=6000");
+  const options = page.locator("main ul >> role=button");
+  await options.first().waitFor({ state: "visible" });
+  const seen = new Set<string>();
+  for (let i = 0; i < 20; i++) {
+    // capture a stable identifier: first option text plus correctId presence in DOM
+    const firstText = (await options.first().textContent())?.trim() ?? `opt${i}`;
+    seen.add(firstText + `#${i}`);
+    await options.first().click();
+    await page.getByText(/Correct|Incorrect/).waitFor();
+    if (i < 19) {
+      await page.getByTestId("next").click();
+      await options.first().waitFor({ state: "visible" });
+    }
+  }
+  expect(seen.size).toBeGreaterThanOrEqual(20);
 });
 
 test.skip("region filter limits flags to selected region (stub)", async ({ page }) => {

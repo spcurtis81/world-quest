@@ -20,18 +20,23 @@ export default function FlagQuizClient({ initialRoundSize, initialSeed }: Props)
   const [scoreCorrect, setScoreCorrect] = React.useState(0);
   const [scoreTotal, setScoreTotal] = React.useState(0);
   const [difficulty, setDifficulty] = React.useState<"easy"|"medium"|"hard">("easy");
+  const [region, setRegion] = React.useState<string>("ALL");
   const firstOptionRef = React.useRef<HTMLButtonElement | null>(null);
   const [seedBase] = React.useState<number>(() => (initialSeed ?? Math.floor(Math.random() * 1e6)));
   function seedFor(i: number) { return seedBase + i; }
   const [history, setHistory] = React.useState<GameResult[]>([]);
 
-  async function load(seed?: number) {
+  async function load(indexToLoad?: number, overrideSeed?: number) {
     setStatus("loading");
     setChosen(null);
     const url = new URL((process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000") + "/v1/quiz/flag");
-    if (seed != null) url.searchParams.set("seed", String(seed));
+    const idx = typeof indexToLoad === "number" ? indexToLoad : questionIndex;
+    const seedVal = typeof overrideSeed === "number" ? overrideSeed : seedBase;
+    url.searchParams.set("seed", String(seedVal));
+    url.searchParams.set("index", String(idx));
     const optsMap = { easy: 4, medium: 6, hard: 8 } as const;
     url.searchParams.set("options", String(optsMap[difficulty]));
+    url.searchParams.set("region", String(region));
     const res = await fetch(url.toString(), { cache: "no-store" });
     const data = await res.json();
     setQ(data);
@@ -86,8 +91,8 @@ export default function FlagQuizClient({ initialRoundSize, initialSeed }: Props)
       <p style={{ marginTop: 0 }}>Single question demo (Sprint 1).</p>
       <p style={{ margin: "8px 0 16px" }}>Score: {scoreCorrect} / {scoreTotal}</p>
       <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
-        <button style={{ minHeight: 44, padding: "12px 14px" }} onClick={() => load()}>New Question</button>
-        <button style={{ minHeight: 44, padding: "12px 14px" }} onClick={() => load(123)}>Deterministic (seed=123)</button>
+        <button style={{ minHeight: 44, padding: "12px 14px" }} onClick={() => load(0)}>New Question</button>
+        <button style={{ minHeight: 44, padding: "12px 14px" }} onClick={() => load(questionIndex, 123)}>Deterministic (seed=123)</button>
         <label style={{ marginLeft: 8 }}>Questions:
           <select value={roundSize} onChange={e => setRoundSize(Number(e.target.value))}>
             {[3,5,10].map(n => <option key={n} value={n}>{n}</option>)}
@@ -107,7 +112,7 @@ export default function FlagQuizClient({ initialRoundSize, initialSeed }: Props)
       <div style={{ display: "flex", gap: 12, alignItems: "center", marginTop: 8, flexWrap: "wrap" }}>
         {/* Sprint 6 STUB: round length */}
         <label>Round length:&nbsp;
-          <select aria-label="Round length (stub)" defaultValue="10">
+          <select aria-label="Round length (stub)" value={String(roundSize)} onChange={e => setRoundSize(Number(e.target.value))}>
             <option value="5">5</option>
             <option value="10">10</option>
             <option value="20">20</option>
@@ -115,7 +120,7 @@ export default function FlagQuizClient({ initialRoundSize, initialSeed }: Props)
         </label>
         {/* Sprint 6 STUB: region filter */}
         <label>Region:&nbsp;
-          <select aria-label="Region (stub)" defaultValue="ALL">
+          <select aria-label="Region (stub)" value={region} onChange={e => setRegion(e.target.value)}>
             <option value="ALL">World</option>
             <option value="EU">Europe</option>
             <option value="AF">Africa</option>
@@ -154,6 +159,7 @@ export default function FlagQuizClient({ initialRoundSize, initialSeed }: Props)
       ) : (
         q && (
           <section aria-label="Flag quiz question" style={{ marginTop: 16 }}>
+            <div style={{ fontSize: 14, color: "#555", marginBottom: 8 }}>Question {questionIndex + 1} of {roundSize}</div>
             {q?.imageUrl && (
               <img
                 src={q.imageUrl}
@@ -202,7 +208,7 @@ export default function FlagQuizClient({ initialRoundSize, initialSeed }: Props)
               </p>
             )}
             {phase === "question" && questionIndex < roundSize - 1 && (
-              <button aria-label="Next Question" style={{ minHeight: 44, padding: "12px 14px" }} onClick={() => { const next = questionIndex + 1; setQuestionIndex(next); setChosen(null); load(seedFor(next)); }} data-testid="next">Next Question</button>
+              <button aria-label="Next Question" style={{ minHeight: 44, padding: "12px 14px" }} onClick={() => { const next = questionIndex + 1; setQuestionIndex(next); setChosen(null); load(next); }} data-testid="next">Next Question</button>
             )}
             {phase === "question" && questionIndex === roundSize - 1 && (
               <button aria-label="Finish Round" style={{ minHeight: 44, padding: "12px 14px" }} onClick={() => { setPhase("summary"); }} data-testid="finish">Finish Round</button>
