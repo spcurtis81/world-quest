@@ -1,5 +1,5 @@
 # Sprint 6 – Flag Pool, Round Flow, Summary Review, Regions (Stub)
-**Dates:** {{fill when closed}}
+**Dates:** 2025-08-20 – 2025-08-20
 **Planned Version:** 0.6.0
 
 ## Sprint Goal

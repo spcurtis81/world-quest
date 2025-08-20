@@ -50,3 +50,8 @@
 - Round length & progression indicator
 - Summary review with per-question breakdown
 - Region filter (Europe/Africa/Asia/Americas/Oceania)
+
+## 0.7.0 – Sprint 7 (planned)
+- Region switch confirmation modal; restart round on confirm
+- Infinite round (∞) option in round length
+- Summary improvements and minor console fixes
