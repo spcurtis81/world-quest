@@ -55,3 +55,9 @@
 - Region switch confirmation modal; restart round on confirm
 - Infinite round (∞) option in round length
 - Summary improvements and minor console fixes
+
+## 0.7.0 – Sprint 7
+- Region switch confirmation modal; round restarts on confirm
+- Infinite round (∞) with manual end and “Stats so far” summary
+- E2E for modal flow and infinite mode
+- No breaking changes

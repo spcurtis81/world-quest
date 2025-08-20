@@ -21,3 +21,7 @@ pnpm dev
 - Keep `pnpm dev` running in one terminal
 - In another terminal: `pnpm -C tests e2e`
 - Health waits rely on `/healthz` routes for both API and Web
+
+## Manual testing tips
+- Region modal: start a round, change Region; confirm/cancel flow should behave as expected
+- Infinite mode: select ∞ in Round length; answer a few, then use End round to reach summary

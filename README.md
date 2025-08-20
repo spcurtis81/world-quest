@@ -32,13 +32,13 @@ GitHub Actions runs typecheck, lint, and tests on pull requests.
 
 ## Current Features
 
-- Flag Quiz (`/flag-quiz`): multi‑question rounds with answer feedback, Next/Finish, end-of-round summary with score and percent, restart (Play Again), recent games history (localStorage, last 5), difficulty selector (easy/medium/hard), and real flag images when CDN is enabled (local placeholder otherwise).
+- Flag Quiz (`/flag-quiz`): multi‑question rounds with answer feedback, round length 5/10/20/∞, Next/Finish, end-of-round summary (finite: percent + review; infinite: “Stats so far” + review), restart (Play Again), region filter (with confirmation modal mid-round), recent games history (localStorage, last 5), difficulty selector (easy/medium/hard), and real flag images when CDN is enabled (local placeholder otherwise).
 
 ## API Endpoints
 
 - `GET /healthz` – API health
 - `GET /v1/ping` – ping
-- `GET /v1/quiz/flag?seed=<int>&options=<4|6|8>` – Single question; deterministic with `seed`; number of options controlled by `options`; may include `imageUrl`.
+- `GET /v1/quiz/flag?seed=<int>&index=<int>&options=<4|6|8>&region=ALL|EU|AF|AS|AM|OC` – Single question; deterministic with `seed`; `index` supports per-round order; `options` controls number of options; may include `imageUrl`.
 
 ## Web Health
 

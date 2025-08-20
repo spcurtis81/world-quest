@@ -1,7 +1,9 @@
-# Release Notes – 0.7.0 (planned)
-**Summary:** Adds a user-friendly region switch flow, an infinite round option, and summary UX improvements.
+# Release Notes – 0.7.0
+**Summary:** Sprint 7 improves round control and UX with a region change confirmation flow and an infinite mode, plus matching E2E.
 
-**Planned highlights**
-- Region switch confirmation modal and round restart
-- Infinite round option (∞)
-- Summary improvements
+**Highlights**
+- Region switch modal (confirm/cancel) → safe restarts
+- Infinite rounds with manual end and “Stats so far”
+- Per-question review maintained
+
+**Breaking changes:** None

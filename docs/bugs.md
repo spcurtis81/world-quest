@@ -10,3 +10,8 @@
 |  –  | (none this sprint) |  –  |  –  | 0.2.0 |  –  |  –  |
 
 No new bugs were recorded in Sprint 5.
+No new bugs were recorded in Sprint 7.
+
+Fixed in Sprint 7:
+- Region change mid-round previously could lead to mismatched pool; now confirmed/restarted
+- Minor race conditions in E2E addressed by robust waits (carried forward)
