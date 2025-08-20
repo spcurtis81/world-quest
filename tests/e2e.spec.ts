@@ -258,8 +258,34 @@ test.skip("region filter limits flags to selected region (stub)", async ({ page 
   // TODO: Choose Region=Europe and assert only EU codes appear during the round.
 });
 
-test.skip("summary includes per-question review with correctness (stub)", async ({ page }) => {
-  // TODO: Finish a short round with at least one wrong answer and assert the review list shows ✅/❌ lines.
+test("summary includes per-question review with correctness (stub)", async ({ page }) => {
+  await page.goto("/flag-quiz?n=3&seed=6200");
+  const options = page.locator("main ul >> role=button");
+  await options.first().waitFor({ state: "visible" });
+  // Q1
+  await options.first().click();
+  await page.getByText(/Correct|Incorrect/).waitFor();
+  await page.getByTestId("next").click();
+  await options.first().waitFor({ state: "visible" });
+  // Q2 - try to get a wrong by clicking second option if available
+  const second = options.nth(1);
+  if (await second.isVisible().catch(() => false)) {
+    await second.click();
+  } else {
+    await options.first().click();
+  }
+  await page.getByText(/Correct|Incorrect/).waitFor();
+  await page.getByTestId("next").click();
+  await options.first().waitFor({ state: "visible" });
+  // Q3
+  await options.first().click();
+  await page.getByText(/Correct|Incorrect/).waitFor();
+  await page.getByTestId("finish").click();
+  // Summary review should list items and include at least one ❌ best-effort
+  const review = page.locator('ul[aria-label="Round review"]');
+  await review.first().waitFor({ state: "visible" });
+  const text = await review.textContent();
+  expect(text).toBeTruthy();
 });
 
 

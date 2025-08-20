@@ -25,6 +25,7 @@ export default function FlagQuizClient({ initialRoundSize, initialSeed }: Props)
   const [seedBase] = React.useState<number>(() => (initialSeed ?? Math.floor(Math.random() * 1e6)));
   function seedFor(i: number) { return seedBase + i; }
   const [history, setHistory] = React.useState<GameResult[]>([]);
+  const [roundResults, setRoundResults] = React.useState<Array<{ code: string; correctLabel: string; chosenId: string | null; isCorrect: boolean; imageUrl?: string }>>([]);
 
   async function load(indexToLoad?: number, overrideSeed?: number) {
     setStatus("loading");
@@ -139,6 +140,18 @@ export default function FlagQuizClient({ initialRoundSize, initialSeed }: Props)
           <p data-testid="summary-score">
             Score: {scoreCorrect} / {scoreTotal} ({Math.round((scoreCorrect / Math.max(1, scoreTotal)) * 100)}%)
           </p>
+          <ul aria-label="Round review">
+            {roundResults.map((r, i) => (
+              <li key={i}>
+                {r.imageUrl && (
+                  <img src={r.imageUrl} alt={`Flag ${r.code}`} loading="lazy" style={{ width: 64, height: "auto", marginRight: 8 }} />
+                )}
+                <span>{i + 1}.</span>{" "}
+                <strong>{r.correctLabel}</strong>{" "}
+                <span>{r.isCorrect ? "✅" : "❌"}</span>
+              </li>
+            ))}
+          </ul>
           <h3>Recent games</h3>
           <ul aria-label="Recent games">
             {history.length === 0 ? (
@@ -153,7 +166,8 @@ export default function FlagQuizClient({ initialRoundSize, initialSeed }: Props)
           </ul>
           <button aria-label="Play Again" onClick={() => {
             setScoreCorrect(0); setScoreTotal(0); setQuestionIndex(0); setChosen(null);
-            setPhase("question"); load(seedFor(0));
+            setRoundResults([]);
+            setPhase("question"); load(0);
           }} data-testid="restart">Play Again</button>
         </section>
       ) : (
@@ -178,10 +192,19 @@ export default function FlagQuizClient({ initialRoundSize, initialSeed }: Props)
                     <button
                       ref={idx === 0 ? firstOptionRef : undefined}
                       onClick={() => {
-                        if (!chosen) {
+                        if (!chosen && q) {
                           setChosen(opt.id);
                           setScoreTotal((n) => n + 1);
-                          if (opt.id === q!.correctId) setScoreCorrect((n) => n + 1);
+                          const isRight = opt.id === q.correctId;
+                          if (isRight) setScoreCorrect((n) => n + 1);
+                          const correctOption = q.options.find(o => o.id === q.correctId);
+                          setRoundResults(prev => ([...prev, {
+                            code: q.correctId,
+                            correctLabel: correctOption ? correctOption.label : q.correctId,
+                            chosenId: opt.id,
+                            isCorrect: isRight,
+                            imageUrl: q.imageUrl,
+                          }]));
                         }
                       }}
                       disabled={!!chosen}
