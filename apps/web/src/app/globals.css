@@ -10,3 +10,54 @@ button{border-radius:var(--radius-sm);box-shadow:var(--shadow-sm);border:1px sol
 [data-testid="modal-backdrop"]{position:fixed;inset:0;background:rgba(0,0,0,.35)}
 dialog[open]{max-width:420px;width:calc(100% - 2rem);border:none;padding:1rem;border-radius:8px}
 [inert]{pointer-events:none !important}
+
+/* Modal polish */
+:root {
+  --modal-bg: var(--color-surface, #fff);
+  --modal-shadow: var(--shadow-lg, 0 10px 25px rgba(0,0,0,.15));
+  --modal-radius: var(--radius-lg, 12px);
+  --space-2: var(--space-2, 8px);
+  --space-3: var(--space-3, 12px);
+  --space-4: var(--space-4, 16px);
+}
+[data-testid="modal-backdrop"] {
+  backdrop-filter: blur(2px);
+  animation: backdropFade .15s ease-out;
+}
+@keyframes backdropFade { from { opacity: 0 } to { opacity: 1 } }
+dialog[data-testid="region-change-modal"] {
+  background: var(--modal-bg);
+  border: none;
+  border-radius: var(--modal-radius);
+  box-shadow: var(--modal-shadow);
+  padding: var(--space-4);
+  animation: dialogPop .16s ease-out;
+}
+@keyframes dialogPop {
+  from { opacity: 0; transform: translate(-50%, -48%) scale(.98); }
+  to   { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+dialog[data-testid="region-change-modal"] h2 {
+  margin: 0 0 var(--space-3);
+  font-size: 1.1rem;
+}
+dialog[data-testid="region-change-modal"] p {
+  margin: 0 0 var(--space-4);
+}
+.region-modal-actions {
+  display: flex; gap: var(--space-3); justify-content: flex-end;
+}
+button.btn {
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: var(--btn-bg, #f3f4f6);
+  color: var(--btn-fg, #111);
+}
+button.btn:focus-visible { outline: 2px solid #4f46e5; outline-offset: 2px; }
+button.btn.secondary { background: #f3f4f6; color: #111; }
+button.btn.primary { background: #4f46e5; color: white; }
+@media (prefers-color-scheme: dark) {
+  button.btn.secondary { background: #374151; color: #f9fafb; }
+  button.btn.primary { background: #6366f1; }
+}

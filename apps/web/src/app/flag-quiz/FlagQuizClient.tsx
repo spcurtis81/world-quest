@@ -377,10 +377,11 @@ export default function FlagQuizClient({ initialRoundSize, initialSeed }: Props)
           >
             <h2 id="region-modal-title" style={{ marginTop: 0 }}>Change region?</h2>
             <p>Changing region will abandon the current round and start a new one. Continue?</p>
-            <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+            <div className="region-modal-actions">
               <button
                 type="button"
                 data-testid="region-modal-cancel"
+                className="btn secondary"
                 onClick={() => {
                   setIsRegionModalOpen(false);
                   setPendingRegion(region);
@@ -393,6 +394,7 @@ export default function FlagQuizClient({ initialRoundSize, initialSeed }: Props)
                 type="button"
                 data-testid="region-modal-confirm"
                 autoFocus
+                className="btn primary"
                 onClick={() => {
                   const applied = pendingRegion ?? region;
                   setIsRegionModalOpen(false);
