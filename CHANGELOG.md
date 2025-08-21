@@ -61,3 +61,10 @@
 - Infinite round (∞) with manual end and “Stats so far” summary
 - E2E for modal flow and infinite mode
 - No breaking changes
+
+## 0.9.0 – Sprint 9 (planned)
+- Modal polish: portaled to body, inert-driven background block, subtle animation
+- Toast notifications for key events (new round)
+- Mobile spacing/tap-target refinements using tokens
+- Accessibility smoke (dev-only axe)
+- Design tokens published from `@ui/shared`

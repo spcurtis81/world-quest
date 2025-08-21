@@ -16,6 +16,7 @@
     "format": "pnpm -r format",
     "test": "pnpm -r test",
     "e2e": "pnpm -C tests e2e",
+    "e2e:full": "scripts/e2e-runner.sh",
     "prepare": "husky install",
     "postinstall": "husky install || true"
   },

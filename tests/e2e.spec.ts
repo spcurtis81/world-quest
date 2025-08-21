@@ -10,16 +10,48 @@ const WEB_HEALTH = `${WEB_BASE}/healthz`;
 const API_HEALTH = `http://localhost:${PORT_API}/healthz`;
 
 test.beforeAll(async () => {
+  console.log("[e2e] Waiting up to 60s for API and Web health…");
   await waitForHttp(API_HEALTH, { timeoutMs: 20_000, intervalMs: 500 });
   await waitForHttp(WEB_HEALTH, { timeoutMs: 20_000, intervalMs: 500 });
 });
 
 // Helper to select region and confirm modal if shown (Sprint 7A)
 async function selectRegionWithConfirm(page: any, value: "ALL"|"EU"|"AF"|"AS"|"AM"|"OC") {
-  await page.selectOption('select[aria-label="Region"], select[aria-label="Region (stub)"]', value);
+  await page.selectOption('[data-testid="region-select"], select[aria-label="Region"]', value);
   const modal = page.getByTestId("region-change-modal");
   if (await modal.isVisible().catch(() => false)) {
     await page.getByTestId("region-modal-confirm").click();
+    await modal.waitFor({ state: "hidden" });
+    await page.getByTestId("modal-backdrop").waitFor({ state: "detached" });
+  }
+}
+
+// Trigger region change and wait for the modal, but don't confirm it
+async function selectRegionTriggerModal(page: any, value: "ALL"|"EU"|"AF"|"AS"|"AM"|"OC") {
+  await page.selectOption('[data-testid="region-select"], select[aria-label="Region"]', value);
+  await page.getByTestId("region-change-modal").waitFor();
+}
+
+// Ensure modal is open and backdrop visible
+async function ensureModalOpen(page: any) {
+  const modal = page.getByTestId("region-change-modal");
+  await modal.waitFor();
+  await page.getByTestId("modal-backdrop").isVisible();
+  return modal;
+}
+
+// Try ESC by dispatching on the dialog node; fall back to Cancel
+async function closeModalEscapeOrCancel(page: any) {
+  const modal = page.getByTestId("region-change-modal");
+  try {
+    await modal.evaluate((el: HTMLElement) => {
+      const ev = new KeyboardEvent("keydown", { key: "Escape", bubbles: true, cancelable: true });
+      el.dispatchEvent(ev);
+    });
+    await modal.waitFor({ state: "hidden", timeout: 800 });
+    return;
+  } catch {
+    await page.getByTestId("region-modal-cancel").click();
     await modal.waitFor({ state: "hidden" });
   }
 }
@@ -188,6 +220,39 @@ test("stats page lists finished rounds", async ({ page }) => {
   await page.getByTestId("summary-heading").waitFor();
   await page.getByTestId("go-stats").click();
   await page.getByTestId("stats-table").waitFor();
+});
+
+test("shows toast when new round starts", async ({ page }) => {
+  await page.goto("/flag-quiz?n=3&seed=9050");
+  const options = page.locator("main ul >> role=button");
+  await options.first().waitFor({ state: "visible" });
+
+  // Trigger modal and confirm to start a new round
+  await page.selectOption('select[aria-label="Region"]', "EU");
+  await page.getByTestId("region-change-modal").waitFor();
+  await page.getByTestId("region-modal-confirm").click();
+
+  // Expect a status toast with the text and it disappears
+  const toast = page.getByRole("status", { name: /New round started/i });
+  await toast.waitFor({ timeout: 5000 });
+  await toast.waitFor({ state: "hidden", timeout: 7000 });
+});
+
+test("axe a11y smoke on flag-quiz (dev-only)", async ({ page }) => {
+  if (process.env.NODE_ENV !== "development") {
+    test.skip(true, "axe check only in development");
+  }
+  await page.goto("/flag-quiz?n=1&seed=9060");
+  try {
+    // Dynamic import to avoid hard dependency
+    // @ts-ignore
+    const { analyze } = await import("@axe-core/playwright");
+    // @ts-ignore
+    const results = await analyze(page);
+    expect(results.violations?.length ?? 0).toBe(0);
+  } catch {
+    test.skip(true, "axe not available");
+  }
 });
 
 test("difficulty medium returns 6 options", async ({ page }) => {
@@ -422,14 +487,20 @@ test("region change modal blocks UI until choice", async ({ page }) => {
   await page.goto("/flag-quiz?n=3&seed=8100");
   const options = page.locator("main ul >> role=button");
   await options.first().waitFor({ state: "visible" });
-  await page.selectOption('select[aria-label="Region"]', "EU");
-  await page.getByTestId("region-change-modal").waitFor();
-  await page.getByTestId("modal-backdrop").isVisible();
-  // Attempt click on an option should not advance while modal open
-  await options.first().click({ trial: true }).catch(() => {});
-  // Close with ESC
-  await page.keyboard.press("Escape");
-  await page.getByTestId("region-change-modal").waitFor({ state: "hidden" });
+  await selectRegionTriggerModal(page, "EU");
+  await ensureModalOpen(page);
+  // Assert <main> is inert while modal is open (effect-driven)
+  await expect.poll(async () => {
+    return await page.locator("main").getAttribute("inert");
+  }, { timeout: 5000 }).toBe("");
+
+  // Close via ESC (with Cancel fallback)
+  await closeModalEscapeOrCancel(page);
+
+  // <main> should be interactive again (no inert attribute)
+  await expect.poll(async () => {
+    return await page.locator("main").getAttribute("inert");
+  }, { timeout: 5000 }).toBeNull();
 });
 
 

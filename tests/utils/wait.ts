@@ -2,10 +2,11 @@ export async function waitForHttp(
   url: string,
   opts?: { timeoutMs?: number; intervalMs?: number }
 ): Promise<void> {
-  const timeoutMs = opts?.timeoutMs ?? 20_000;
-  const intervalMs = opts?.intervalMs ?? 500;
+  const timeoutMs = opts?.timeoutMs ?? 60_000; // was 20_000
+  const intervalMs = opts?.intervalMs ?? 1_000; // was 500
   const start = Date.now();
-  let tries = 0, lastErr: unknown = undefined;
+  let tries = 0;
+  let lastErr: unknown = null;
 
   while (Date.now() - start < timeoutMs) {
     tries++;
@@ -16,9 +17,9 @@ export async function waitForHttp(
     } catch (e) {
       lastErr = e;
     }
-    if (tries % 10 === 0) {
+    if (tries % 5 === 0) {
       // eslint-disable-next-line no-console
-      console.log(`[waitForHttp] still waiting: ${url} (tries=${tries})`);
+      console.log(`[waitForHttp] still waiting: ${url} (tries=${tries}) last=${String(lastErr)}`);
     }
     await new Promise((r) => setTimeout(r, intervalMs));
   }

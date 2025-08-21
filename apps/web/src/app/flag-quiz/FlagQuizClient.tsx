@@ -1,6 +1,8 @@
 "use client";
 import * as React from "react";
+import { createPortal } from "react-dom";
 import { HISTORY_KEY, addToHistory, type GameResult, pushStat, type RoundResultSummary } from "@lib/shared";
+import { showToast } from "../_components/ToastProvider";
 
 type Option = { id: string; label: string };
 type Q = { id: string; question: string; options: Option[]; correctId: string; imageUrl?: string };
@@ -34,6 +36,24 @@ export default function FlagQuizClient({ initialRoundSize, initialSeed }: Props)
   function seedFor(i: number) { return seedBase + i; }
   const [history, setHistory] = React.useState<GameResult[]>([]);
   const [roundResults, setRoundResults] = React.useState<Array<{ code: string; correctLabel: string; chosenId: string | null; isCorrect: boolean; imageUrl?: string }>>([]);
+
+  const handleRegionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newValue = (e.currentTarget.value as "ALL"|"EU"|"AF"|"AS"|"AM"|"OC");
+    if (phase === "question" && newValue !== region) {
+      setPendingRegion(newValue);
+      setIsRegionModalOpen(true);
+    } else {
+      setRegion(newValue);
+      if (phase !== "question") {
+        setQuestionIndex(0);
+        setChosen(null);
+        setScoreCorrect(0);
+        setScoreTotal(0);
+        setRoundResults([]);
+        load(0, undefined, newValue);
+      }
+    }
+  };
 
   async function load(indexToLoad?: number, overrideSeed?: number, regionOverride?: string) {
     setStatus("loading");
@@ -117,9 +137,30 @@ export default function FlagQuizClient({ initialRoundSize, initialSeed }: Props)
     }
   }, [phase, scoreCorrect, scoreTotal]);
 
+  // Block background when modal is open by toggling attributes on <main>
+  React.useEffect(() => {
+    if (typeof document === "undefined") return;
+    const mainEl = document.querySelector('main');
+    if (!mainEl) return;
+    if (isRegionModalOpen) {
+      mainEl.setAttribute('inert', '');
+      mainEl.setAttribute('aria-hidden', 'true');
+    } else {
+      mainEl.removeAttribute('inert');
+      mainEl.removeAttribute('aria-hidden');
+    }
+    return () => {
+      mainEl.removeAttribute('inert');
+      mainEl.removeAttribute('aria-hidden');
+    };
+  }, [isRegionModalOpen]);
+
   return (
     <main role="main" aria-label="Flag Quiz">
-      <div className="fq-container">
+      <div
+        className="fq-container"
+        data-testid="app-shell"
+      >
       <h1>Flag Quiz</h1>
       <p style={{ marginTop: 0 }}>Single question demo (Sprint 1).</p>
       <p style={{ margin: "8px 0 16px" }}>Score: {scoreCorrect} / {scoreTotal}</p>
@@ -171,20 +212,7 @@ export default function FlagQuizClient({ initialRoundSize, initialSeed }: Props)
         </label>
         {/* Sprint 7 STUB: Region */}
         <label>Region:&nbsp;
-          <select aria-label="Region" ref={regionSelectRef} value={region} onChange={e => {
-            const newValue = e.currentTarget.value as any;
-            if (phase === "question" && newValue !== region) {
-              setPendingRegion(newValue);
-              setIsRegionModalOpen(true);
-            } else {
-              setRegion(newValue);
-              if (phase !== "question") {
-                setQuestionIndex(0);
-                setChosen(null);
-                load(0, undefined, newValue);
-              }
-            }
-          }}>
+          <select aria-label="Region" data-testid="region-select" ref={regionSelectRef} value={region} onChange={handleRegionChange}>
             <option value="ALL">World</option>
             <option value="EU">Europe</option>
             <option value="AF">Africa</option>
@@ -234,6 +262,7 @@ export default function FlagQuizClient({ initialRoundSize, initialSeed }: Props)
             setScoreCorrect(0); setScoreTotal(0); setQuestionIndex(0); setChosen(null);
             setRoundResults([]);
             setPhase("question"); load(0);
+            try { showToast({ message: "New round started", type: "info" }); } catch {}
           }} data-testid="restart">Play Again</button>
         </section>
       ) : (
@@ -321,63 +350,72 @@ export default function FlagQuizClient({ initialRoundSize, initialSeed }: Props)
         <button type="button" aria-label="Play Again (stub)">Play Again</button>
       </section>
       </div>
-      {/* Region-change overlay modal */}
+      {/* Region-change overlay modal rendered via portal to <body> */}
       {isRegionModalOpen && (
-        <div data-testid="modal-backdrop" style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.35)', zIndex: 1000 }} />
-      )}
-      <dialog
-        data-testid="region-change-modal"
-        open={isRegionModalOpen}
-        aria-modal="true"
-        role="dialog"
-        aria-labelledby="region-modal-title"
-        style={{ maxWidth: 420, width: 'calc(100% - 2rem)', border: 'none', padding: '1rem', borderRadius: 8, position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', zIndex: 1001 }}
-        onKeyDown={(e) => {
-          if (!isRegionModalOpen) return;
-          if (e.key === 'Escape') {
-            e.preventDefault();
-            setIsRegionModalOpen(false);
-            setPendingRegion(region);
-            setTimeout(() => regionSelectRef.current?.focus(), 0);
-          }
-          if (e.key === 'Tab') {
-            const focusables = [modalCancelRef.current, modalConfirmRef.current].filter(Boolean) as HTMLElement[];
-            if (focusables.length === 0) return;
-            const current = document.activeElement as HTMLElement | null;
-            const idx = focusables.findIndex(el => el === current);
-            e.preventDefault();
-            if (e.shiftKey) {
-              const next = idx <= 0 ? focusables[focusables.length - 1] : focusables[idx - 1];
-              next?.focus();
-            } else {
-              const next = idx === -1 || idx === focusables.length - 1 ? focusables[0] : focusables[idx + 1];
-              next?.focus();
-            }
-          }
-        }}
-      >
-        <h2 id="region-modal-title" style={{ marginTop: 0 }}>Change region?</h2>
-        <p>Changing region will abandon the current round and start a new one. Continue?</p>
-        <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-          <button ref={modalCancelRef} data-testid="region-modal-cancel" onClick={() => { setIsRegionModalOpen(false); setPendingRegion(region); setTimeout(() => regionSelectRef.current?.focus(), 0); }}>Cancel</button>
-          <button ref={modalConfirmRef} data-testid="region-modal-confirm" autoFocus onClick={() => {
-            setIsRegionModalOpen(false);
-            const newReg = pendingRegion;
-            setRegion(newReg);
-            setPhase('question');
-            setQuestionIndex(0);
-            setChosen(null);
-            setScoreCorrect(0);
-            setScoreTotal(0);
-            setRoundResults([]);
-            load(0, undefined, newReg);
-            setTimeout(() => regionSelectRef.current?.focus(), 0);
-          }}>Confirm</button>
-        </div>
-      </dialog>
-
-      {isRegionModalOpen && (
-        <FocusTrap onActivate={() => { prevFocusRef.current = (document.activeElement as HTMLElement) ?? null; setTimeout(() => modalConfirmRef.current?.focus(), 0); }} onDeactivate={() => { setTimeout(() => regionSelectRef.current?.focus(), 0); }} />
+        <ModalPortal>
+          <div
+            data-testid="modal-backdrop"
+            style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.35)', zIndex: 9998 }}
+            aria-hidden="true"
+          />
+          <dialog
+            data-testid="region-change-modal"
+            open
+            aria-modal="true"
+            role="dialog"
+            aria-labelledby="region-modal-title"
+            style={{ position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', zIndex: 9999, border: 'none', borderRadius: 8, padding: 16, maxWidth: 420, width: 'calc(100% - 2rem)' }}
+            onKeyDown={(ev) => {
+              if (ev.key === 'Escape') {
+                ev.preventDefault();
+                ev.stopPropagation();
+                setIsRegionModalOpen(false);
+                setPendingRegion(region);
+                document.querySelector<HTMLSelectElement>('[data-testid="region-select"]')?.focus();
+              }
+            }}
+          >
+            <h2 id="region-modal-title" style={{ marginTop: 0 }}>Change region?</h2>
+            <p>Changing region will abandon the current round and start a new one. Continue?</p>
+            <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+              <button
+                type="button"
+                data-testid="region-modal-cancel"
+                onClick={() => {
+                  setIsRegionModalOpen(false);
+                  setPendingRegion(region);
+                  document.querySelector<HTMLSelectElement>('[data-testid="region-select"]')?.focus();
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                data-testid="region-modal-confirm"
+                autoFocus
+                onClick={() => {
+                  const applied = pendingRegion ?? region;
+                  setIsRegionModalOpen(false);
+                  setRegion(applied);
+                  // restart round
+                  setPhase('question');
+                  setQuestionIndex(0);
+                  setChosen(null);
+                  setScoreCorrect(0);
+                  setScoreTotal(0);
+                  setRoundResults([]);
+                  load(0, undefined, applied);
+                  setTimeout(() => {
+                    document.querySelector<HTMLButtonElement>('main ul [role="button"]')?.focus();
+                  }, 0);
+                  try { showToast({ message: "New round started", type: "info" }); } catch {}
+                }}
+              >
+                Confirm
+              </button>
+            </div>
+          </dialog>
+        </ModalPortal>
       )}
       {/* Sprint 6 STUB: per-question summary */}
       <section aria-label="Round review (stub)" hidden>
@@ -389,4 +427,12 @@ export default function FlagQuizClient({ initialRoundSize, initialSeed }: Props)
       </section>
     </main>
   );
+}
+
+function ModalPortal({ children }: { children: React.ReactNode }) {
+  const [mounted, setMounted] = React.useState(false);
+  React.useEffect(() => setMounted(true), []);
+  if (!mounted) return null;
+  const target = document.body;
+  return createPortal(children, target);
 }
