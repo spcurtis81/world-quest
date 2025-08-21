@@ -1,0 +1,1 @@
+{"originalStackFrame":{"file":"../../node_modules/.pnpm/next@15.0.0_@babel+core@7.28.3_@playwright+test@1.54.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/compiled/scheduler/cjs/scheduler.development.js","lineNumber":44,"column":1,"methodName":"MessagePort.performWorkUntilDeadline","arguments":[]},"originalCodeFrame":null,"sourcePackage":"react"}
