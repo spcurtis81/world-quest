@@ -1,4 +1,5 @@
 @import url("../../../../packages/ui/src/tokens.css");
+@import url("../../../../packages/ui/src/toast/styles.css");
 *{box-sizing:border-box}
 body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif;background:var(--color-bg);color:var(--color-text)}
 a{color:var(--color-info)}

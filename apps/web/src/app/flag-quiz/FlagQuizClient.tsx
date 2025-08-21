@@ -2,7 +2,7 @@
 import * as React from "react";
 import { createPortal } from "react-dom";
 import { HISTORY_KEY, addToHistory, type GameResult, pushStat, type RoundResultSummary } from "@lib/shared";
-import { showToast } from "../_components/ToastProvider";
+import { toast } from "@ui/shared";
 
 type Option = { id: string; label: string };
 type Q = { id: string; question: string; options: Option[]; correctId: string; imageUrl?: string };
@@ -262,7 +262,7 @@ export default function FlagQuizClient({ initialRoundSize, initialSeed }: Props)
             setScoreCorrect(0); setScoreTotal(0); setQuestionIndex(0); setChosen(null);
             setRoundResults([]);
             setPhase("question"); load(0);
-            try { showToast({ message: "New round started", type: "info" }); } catch {}
+            try { toast("New round started", { variant: "info" }); } catch {}
           }} data-testid="restart">Play Again</button>
         </section>
       ) : (
@@ -410,7 +410,7 @@ export default function FlagQuizClient({ initialRoundSize, initialSeed }: Props)
                   setTimeout(() => {
                     document.querySelector<HTMLButtonElement>('main ul [role="button"]')?.focus();
                   }, 0);
-                  try { showToast({ message: "New round started", type: "info" }); } catch {}
+                  try { toast("New round started", { variant: "info" }); } catch {}
                 }}
               >
                 Confirm
