@@ -38,3 +38,9 @@ blob-report/
 # Do not track built JS from web src
 apps/web/src/**/*.js
 apps/web/src/**/*.js.map
+
+# Playwright artifacts
+playwright-report/
+test-results/
+# Local e2e runner log
+.e2e-dev.log
