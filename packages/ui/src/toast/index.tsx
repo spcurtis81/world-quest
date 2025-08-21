@@ -8,7 +8,15 @@ type ToastEvent = { id: number; msg: string; variant: ToastVariant; durationMs: 
 type Listener = (e: ToastEvent) => void;
 
 const listeners = new Set<Listener>();
-function emit(e: ToastEvent) { listeners.forEach(l => l(e)); }
+const pending: ToastEvent[] = [];
+function emit(e: ToastEvent) {
+  if (listeners.size === 0) {
+    // buffer until provider mounts
+    pending.push(e);
+    return;
+  }
+  listeners.forEach(l => l(e));
+}
 
 /** Global imperative API; safe no-op until provider is mounted */
 export function toast(msg: string, opts: ToastOptions = {}) {
@@ -39,6 +47,11 @@ export function ToastProvider() {
       window.setTimeout(() => setItems((curr) => curr.filter(t => t.id !== e.id)), e.durationMs);
     };
     listeners.add(on);
+    // drain any buffered events synchronously on mount
+    if (pending.length) {
+      const copy = pending.splice(0, pending.length);
+      copy.forEach(on);
+    }
     return () => { listeners.delete(on); };
   }, []);
 

@@ -1,0 +1,51 @@
+# Page snapshot
+
+```yaml
+- main "Flag Quiz":
+  - heading "Flag Quiz" [level=1]
+  - paragraph: Single question demo (Sprint 1).
+  - paragraph: "Score: 0 / 0"
+  - button "New Question"
+  - button "Deterministic (seed=123)"
+  - text: "Questions:"
+  - combobox "Questions:":
+    - option "3" [selected]
+    - option "5"
+    - option "10"
+  - text: "Difficulty:"
+  - combobox "Difficulty":
+    - option "Easy (4)" [selected]
+    - option "Medium (6)"
+    - option "Hard (8)"
+  - button "Start Round (stub)": Start Round
+  - text: "Round length:"
+  - combobox "Round length":
+    - option "5" [selected]
+    - option "10"
+    - option "20"
+    - option "∞"
+  - text: "Region:"
+  - combobox "Region":
+    - option "World"
+    - option "Europe" [selected]
+    - option "Africa"
+    - option "Asia"
+    - option "Americas"
+    - option "Oceania"
+  - region "Flag quiz question":
+    - text: Question 1 of 3
+    - img "Flag for flag-AL"
+    - heading "Which country’s flag is shown?" [level=2]
+    - list "Answer options":
+      - listitem:
+        - button "North Macedonia"
+      - listitem:
+        - button "Italy"
+      - listitem:
+        - button "Albania"
+      - listitem:
+        - button "Ireland"
+    - paragraph
+    - button "Next Question"
+- alert
+```
