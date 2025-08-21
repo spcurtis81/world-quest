@@ -1,46 +1,64 @@
-# Dependencies
-node_modules
-.pnp.cjs
-.pnp.loader.mjs
-
-# Builds
-.next
-dist/
-build/
-.out/
-.vite/
-coverage/
-
-# Environment
-.env
-.env.local
-.env.*.local
-
-# Logs
-logs
-*.log
+# ========================================================
+# Node & package managers
+# ========================================================
+node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
+.pnpm-debug.log*
 
-# Editor
-.DS_Store
-*.swp
-.idea/
-.vscode
+# ========================================================
+# Build outputs (Next.js, Node)
+# ========================================================
+.next/
+out/
+dist/
+build/
+.cache/
+.vercel/
+*.tsbuildinfo
 
-# Playwright
+# ========================================================
+# Test outputs (Playwright, Jest, etc.)
+# ========================================================
+test-results/
 playwright-report/
 blob-report/
-.test-results/
+coverage/
+*.lcov
+*.zip
+*.webm
+*.png
 
-# Do not track built JS from web src
-apps/web/src/**/*.js
-apps/web/src/**/*.js.map
-
-# Playwright artifacts
-playwright-report/
-test-results/
-# Local e2e runner log
+# Local test/dev logs
+*.log
 .e2e-dev.log
+
+# ========================================================
+# Environment / config
+# ========================================================
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# ========================================================
+# OS / Editor files
+# ========================================================
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*.swn
+*.swm
+.idea/
+.vscode/
+*.iml
+
+# ========================================================
+# Misc
+# ========================================================
+*.tgz
+*.tar
