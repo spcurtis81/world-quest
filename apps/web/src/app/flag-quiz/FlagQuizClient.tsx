@@ -280,7 +280,7 @@ export default function FlagQuizClient({ initialRoundSize, initialSeed }: Props)
               />
             )}
             <h2 style={{ marginBottom: 8 }}>{q.question}</h2>
-            <ul aria-label="Answer options" style={{ listStyle: "none", padding: 0, display: "grid", gap: 12 }}>
+            <ul className="quiz-options" aria-label="Answer options" style={{ listStyle: "none", padding: 0, display: "grid", gap: 12 }}>
               {q.options.map((opt, idx) => {
                 const isCorrect = chosen && opt.id === q.correctId;
                 const isWrong = chosen === opt.id && opt.id !== q.correctId;
@@ -322,11 +322,9 @@ export default function FlagQuizClient({ initialRoundSize, initialSeed }: Props)
               })}
             </ul>
 
-            {chosen && (
-              <p style={{ marginTop: 8 }}>
-                {chosen === q.correctId ? "✅ Correct!" : "❌ Incorrect"}
-              </p>
-            )}
+            <p className="fq-feedback" data-testid="feedback" style={{ marginTop: 8 }}>
+              {chosen ? (chosen === q.correctId ? "✅ Correct!" : "❌ Incorrect") : ""}
+            </p>
             {phase === "question" && (isInfinite || questionIndex < roundSize - 1) && (
               <button aria-label="Next Question" style={{ minHeight: 44, padding: "12px 14px" }} onClick={() => { const next = questionIndex + 1; setQuestionIndex(next); setChosen(null); load(next); }} data-testid="next">Next Question</button>
             )}

@@ -12,6 +12,15 @@ button{border-radius:var(--radius-sm);box-shadow:var(--shadow-sm);border:1px sol
 dialog[open]{max-width:420px;width:calc(100% - 2rem);border:none;padding:1rem;border-radius:8px}
 [inert]{pointer-events:none !important}
 
+/* Mobile/touch refinements */
+.quiz-options [role="button"],
+.quiz-options button {
+  display: block; width: 100%;
+  min-height: 44px; padding: 12px 14px;
+  border-radius: 10px; margin: 8px 0;
+}
+.fq-feedback { min-height: 22px; }
+
 /* Modal polish */
 :root {
   --modal-bg: var(--color-surface, #fff);
