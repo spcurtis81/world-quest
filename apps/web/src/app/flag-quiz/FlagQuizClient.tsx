@@ -323,7 +323,7 @@ export default function FlagQuizClient({ initialRoundSize, initialSeed }: Props)
             </ul>
 
             <p className="fq-feedback" data-testid="feedback" style={{ marginTop: 8 }}>
-              {chosen ? (chosen === q.correctId ? "✅ Correct!" : "❌ Incorrect") : ""}
+              {chosen ? (chosen === q.correctId ? "Correct!" : "Incorrect") : ""}
             </p>
             {phase === "question" && (isInfinite || questionIndex < roundSize - 1) && (
               <button aria-label="Next Question" style={{ minHeight: 44, padding: "12px 14px" }} onClick={() => { const next = questionIndex + 1; setQuestionIndex(next); setChosen(null); load(next); }} data-testid="next">Next Question</button>
