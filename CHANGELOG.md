@@ -62,9 +62,19 @@
 - E2E for modal flow and infinite mode
 - No breaking changes
 
-## 0.9.0 – Sprint 9 (planned)
-- Modal polish: portaled to body, inert-driven background block, subtle animation
-- Toast notifications for key events (new round)
-- Mobile spacing/tap-target refinements using tokens
-- Accessibility smoke (dev-only axe)
-- Design tokens published from `@ui/shared`
+## [0.9.0] - 2025-08-21
+### Added
+- Global `ToastProvider` and `toast()` API available app-wide for confirmation messages, status updates, and game events.
+- Mobile ergonomics improvements: larger tap targets and prevention of layout shifts during interaction.
+- Theme tokens seeded for color, spacing, typography — applied globally to start unifying design system.
+
+### Changed
+- Modal component reworked into an accessible, reusable pattern:
+  - Renders via portal
+  - Background inert during open state
+  - Supports ESC/Cancel/Confirm flows
+- Flag Quiz updated to use shared modal and toast components.
+
+### Fixed
+- E2E tests stabilized around race conditions in toast visibility.
+- Local dev axe a11y smoke test runs but is skipped in CI.

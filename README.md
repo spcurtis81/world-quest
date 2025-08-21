@@ -1,4 +1,4 @@
-# World Quest Monorepo
+# World Quest Monorepo ![version](https://img.shields.io/badge/version-v0.9.0-blue)
 
 Monorepo managed with pnpm workspaces and TypeScript.
 
@@ -33,6 +33,9 @@ GitHub Actions runs typecheck, lint, and tests on pull requests.
 ## Current Features
 
 - Flag Quiz (`/flag-quiz`): multi‑question rounds with answer feedback, round length 5/10/20/∞, Next/Finish, end-of-round summary (finite: percent + review; infinite: “Stats so far” + review), restart (Play Again), region filter (with confirmation modal mid-round), recent games history (localStorage, last 5), difficulty selector (easy/medium/hard), and real flag images when CDN is enabled (local placeholder otherwise).
+
+## Project Highlights
+- v0.9.0 (Sprint 9) — UX polish: shared modal, platform toast system, mobile ergonomics, token seeding
 
 ## API Endpoints
 

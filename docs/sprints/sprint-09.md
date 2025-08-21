@@ -1,6 +1,6 @@
 # Sprint 9 — UX polish & readiness
 
-Dates: Planned
+Dates: 2025-08-15 → 2025-08-21
 
 ## Scope
 - Modal polish (portaled, focus, inert-driven background blocking, subtle animation)
@@ -17,14 +17,25 @@ Dates: Planned
 - Tokens: `packages/ui` exposes `tokens.css` for colors/spacing/radii/shadows and is imported by the web app
 
 ## Done checklist
-- [ ] Modal is portaled and animated; background blocking is deterministic
-- [ ] Toast component and styles exist and are wired into the app
-- [ ] Globals import tokens and apply base styles using CSS variables
-- [ ] E2E includes a toast appearance/disappearance check
-- [ ] (Dev) Axe smoke test is available and skipped in CI
+- [x] Modal is portaled and animated; background blocking is deterministic
+- [x] Toast component and styles exist and are wired into the app
+- [x] Globals import tokens and apply base styles using CSS variables
+- [x] E2E includes a toast appearance/disappearance check
+- [x] (Dev) Axe smoke test is available and skipped in CI
 
 ## Test plan
 - E2E: Trigger region confirm; expect a toast with role="status" containing “New round started” to appear then disappear
 - Manual: Resize to mobile; verify spacing/padding and tap targets remain usable
 - Manual: Open region modal mid‑round; verify background is inert and modal buttons work
 - Dev-only: Run axe smoke on `/flag-quiz` to spot obvious violations
+
+**Sprint Goal:** UX polish and foundational platform components.
+
+**Outcome:** ✅ Delivered
+
+**Highlights:**
+- Shared modal (portal + inert + a11y)
+- Toast system now reusable across entire platform
+- Mobile layout refinements
+- Global token seeding
+- All tests green (25 passed, 1 skipped by design)
