@@ -1,5 +1,4 @@
 import FlagQuizClient from "./FlagQuizClient";
-import { ToastProvider } from "../_components/ToastProvider";
 
 export default async function Page({
   searchParams,
@@ -15,10 +14,5 @@ export default async function Page({
   const s = seedRaw !== undefined ? Number(seedRaw) : null;
   const initialSeed = s !== null && Number.isFinite(s) ? s : null;
 
-  return (
-    <>
-      <ToastProvider />
-      <FlagQuizClient initialRoundSize={initialRoundSize} initialSeed={initialSeed ?? undefined} />
-    </>
-  );
+  return <FlagQuizClient initialRoundSize={initialRoundSize} initialSeed={initialSeed ?? undefined} />;
 }
