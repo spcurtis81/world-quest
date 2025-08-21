@@ -63,7 +63,12 @@ export function ToastProvider() {
     <ToastContext.Provider value={value}>
       <div id="toast-root" aria-live="polite">
         {items.map(t => (
-          <div key={t.id} className={`toast ${t.variant}`} role="status">
+          <div
+            key={t.id}
+            className={`toast ${t.variant}`}
+            role="status"
+            aria-label={t.msg}
+          >
             {t.msg}
           </div>
         ))}
