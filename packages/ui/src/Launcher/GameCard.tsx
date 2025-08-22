@@ -1,6 +1,7 @@
 "use client";
 import * as React from "react";
 import type { GameStatus } from "@lib/shared";
+import { toast } from "../toast";
 
 type Props = {
   title: string;
@@ -16,7 +17,7 @@ export function GameCard({ title, description, href, status, testId }: Props) {
   const Tag: any = isDisabled ? "button" : "a";
   const commonProps: any = isDisabled
     ? { disabled: true, "aria-disabled": "true", title: "Temporarily unavailable" }
-    : { href };
+    : { href, onClick: () => { try { toast(`Loading ${title}…`, { variant: "info" }); } catch {} } };
   return (
     <article role="article" aria-describedby={testId ? `${testId}-desc` : undefined} style={{ background: "var(--color-card)", color: "var(--color-text)", borderRadius: "var(--radius-lg, 12px)", padding: "var(--space-lg, 24px)", boxShadow: "var(--shadow-md)", display: "flex", flexDirection: "column", gap: "var(--space-sm, 10px)" }}>
       <h3 style={{ margin: 0 }}>{title} {isComing && <span style={{ marginLeft: 8, fontSize: 12, color: "var(--color-subtext)" }}>Coming soon</span>}</h3>

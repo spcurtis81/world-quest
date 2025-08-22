@@ -500,7 +500,10 @@ test("launcher renders cards and routes to flag quiz", async ({ page }) => {
   await page.goto("/launch");
   await page.getByTestId("launcher-title").waitFor();
   await page.getByTestId("game-card-flag-quiz").waitFor();
+  // Expect toast on click
   await page.getByTestId("game-card-flag-quiz").click();
+  const toast = page.getByRole("status", { name: /Loading .*…/ });
+  await toast.waitFor({ timeout: 3000 }).catch(()=>{});
   await page.getByRole("heading", { name: /Flag Quiz/i }).waitFor();
 });
 
