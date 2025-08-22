@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { games } from "../config/games";
+import { GAMES as games } from "@lib/shared";
 
 test.describe("games config", () => {
   test("loads and contains required fields", async () => {

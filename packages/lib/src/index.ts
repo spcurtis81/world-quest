@@ -4,3 +4,4 @@ export * from "./random.util";
 export * from "./history.store";
 export * from "./flags.pool";
 export * from "./stats";
+export * from "./games.registry";
