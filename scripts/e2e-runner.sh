@@ -49,8 +49,27 @@ wait_for_health () {
 }
 
 # ==================== Wait for services ====================
+# Wait for API
 wait_for_health "${API_HEALTH}" "API" || exit 1
-wait_for_health "${WEB_HEALTH}" "Web" || exit 1
+
+# Wait for Web (try /healthz then /api/ping)
+echo "[e2e] Waiting up to ${WAIT_SECS}s for Web (http://localhost:${WEB_PORT}/healthz | /api/ping)…"
+WEB_OK=0
+for i in $(seq 1 "${WAIT_SECS}"); do
+  code1=$(curl -s -o /dev/null -w "%{http_code}" "http://localhost:${WEB_PORT}/healthz" || echo "000")
+  code2=$(curl -s -o /dev/null -w "%{http_code}" "http://localhost:${WEB_PORT}/api/ping" || echo "000")
+  if [ "$code1" = "200" ] || [ "$code2" = "200" ]; then
+    WEB_OK=1
+    break
+  fi
+  sleep 1
+done
+if [ "$WEB_OK" != "1" ]; then
+  echo "[e2e] Web failed to start"
+  tail -n 80 "${LOG_FILE}" || true
+  exit 1
+fi
+echo "[e2e] Web is up."
 
 # ==================== Run Playwright =======================
 echo "[e2e] Running Playwright tests…"
