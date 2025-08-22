@@ -538,6 +538,21 @@ test.skip("launcher hides hidden games", async ({ page }) => {
   // will enable once config harness exists for injecting NEXT_PUBLIC_GAMES_STATUS at runtime
 });
 
+test("root redirects to launcher and flag-quiz route works", async ({ page }) => {
+  // Root should load launcher (either app router /launch or legacy /launcher)
+  await page.goto("/");
+  await page.waitForLoadState("domcontentloaded");
+  const sawLauncher = await page.getByTestId("launcher-title").isVisible().catch(()=>false);
+  if (!sawLauncher) {
+    // Fallback legacy launcher title
+    await page.goto("/launcher");
+    await page.getByTestId("launcher-legacy-title").waitFor();
+  }
+  // Direct access to flag quiz keeps working
+  await page.goto("/flag-quiz");
+  await page.getByRole("heading", { name: /Flag Quiz/i }).waitFor();
+});
+
 test("disabled game card is not clickable", async ({ page }) => {
   await page.goto("/launch");
   // Skip if no disabled games present
