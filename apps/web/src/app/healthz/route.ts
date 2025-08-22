@@ -1,5 +1,5 @@
+import { NextResponse } from "next/server";
+
 export async function GET() {
-  return new Response(JSON.stringify({ status: "ok" }), {
-    headers: { "content-type": "application/json" },
-  });
+  return NextResponse.json({ status: "ok", time: new Date().toISOString() });
 }
