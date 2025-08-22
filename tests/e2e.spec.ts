@@ -504,6 +504,36 @@ test("launcher renders cards and routes to flag quiz", async ({ page }) => {
   await page.getByRole("heading", { name: /Flag Quiz/i }).waitFor();
 });
 
+test("legacy launcher renders at least one game (pages/ fallback)", async ({ page }) => {
+  await page.goto("/launcher");
+  // At least one non-hidden game renders
+  const cards = page.locator('[data-testid^="legacy-card-"]');
+  await cards.first().waitFor({ timeout: 5000 });
+});
+
+test("inactive games are visible but disabled (legacy)", async ({ page }) => {
+  await page.goto("/launcher");
+  const disabled = page.getByRole('button', { name: /Coming soon/i });
+  // If no inactive games exist, skip gracefully
+  const exists = await disabled.first().isVisible().catch(()=>false);
+  if (!exists) test.skip(true, "no inactive games in config");
+  await disabled.first().waitFor();
+  await expect(disabled.first()).toHaveAttribute('aria-disabled', 'true');
+});
+
+test("hidden games do not render in legacy launcher", async ({ page }) => {
+  await page.goto("/launcher");
+  await expect(page.locator('[data-testid="legacy-card-secret-game"]')).toHaveCount(0);
+});
+
+test("clicking an active game navigates correctly (legacy)", async ({ page }) => {
+  await page.goto("/launcher");
+  const play = page.locator('[data-testid="legacy-card-flag-quiz"] >> role=link');
+  await play.first().waitFor();
+  await play.first().click();
+  await page.getByRole("heading", { name: /Flag Quiz/i }).waitFor();
+});
+
 test.skip("launcher hides hidden games", async ({ page }) => {
   // will enable once config harness exists for injecting NEXT_PUBLIC_GAMES_STATUS at runtime
 });
