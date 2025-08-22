@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { FLAG_POOL_STUB } from "@lib/shared";
-import { waitForHttp } from "./utils/wait";
+import { waitForHttp, waitForAnyHttp } from "./utils/wait";
 
 const PORT_API = Number(process.env.PORT_API ?? 4000);
 const PORT_WEB = Number(process.env.PORT_WEB ?? 3000);
@@ -12,7 +12,10 @@ const API_HEALTH = `http://localhost:${PORT_API}/healthz`;
 test.beforeAll(async () => {
   console.log("[e2e] Waiting up to 60s for API and Web health…");
   await waitForHttp(API_HEALTH, { timeoutMs: 20_000, intervalMs: 500 });
-  await waitForHttp(WEB_HEALTH, { timeoutMs: 20_000, intervalMs: 500 });
+  await waitForAnyHttp([
+    `http://localhost:${PORT_WEB}/healthz`,
+    `http://localhost:${PORT_WEB}/api/ping`,
+  ], { timeoutMs: 60_000, intervalMs: 750 });
 });
 
 // Helper to select region and confirm modal if shown (Sprint 7A)
@@ -110,6 +113,11 @@ test("api health", async () => {
   const res = await fetch(API_HEALTH);
   const json = await res.json();
   expect(json.status).toBe("ok");
+});
+
+test("web ping", async () => {
+  const res = await fetch(`http://localhost:${PORT_WEB}/api/ping`);
+  expect(res.ok).toBeTruthy();
 });
 
 test("flag quiz API shape (seeded)", async () => {

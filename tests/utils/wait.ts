@@ -25,3 +25,26 @@ export async function waitForHttp(
   }
   throw new Error(`waitForHttp timeout after ${timeoutMs}ms for ${url}. Last error: ${String(lastErr)}`);
 }
+
+export async function waitForAnyHttp(
+  urls: string[],
+  { timeoutMs = 20_000, intervalMs = 500 }: { timeoutMs?: number; intervalMs?: number } = {}
+): Promise<void> {
+  const end = Date.now() + timeoutMs;
+  let lastErr: unknown = null;
+  while (Date.now() < end) {
+    for (const url of urls) {
+      try {
+        const res = await fetch(url);
+        if (res.ok) return;
+        lastErr = new Error(`HTTP ${res.status}`);
+      } catch (e) {
+        lastErr = e;
+      }
+    }
+    await new Promise((r) => setTimeout(r, intervalMs));
+  }
+  throw new Error(
+    `waitForAnyHttp timeout after ${timeoutMs}ms for [${urls.join(", ")}]. Last error: ${String(lastErr)}`
+  );
+}
