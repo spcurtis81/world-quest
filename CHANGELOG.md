@@ -63,18 +63,33 @@
 - No breaking changes
 
 ## [0.9.0] - 2025-08-21
+-
+
+## [0.10.0] - 2024-12-27 – Sprint 10 Release
+
 ### Added
-- Global `ToastProvider` and `toast()` API available app-wide for confirmation messages, status updates, and game events.
-- Mobile ergonomics improvements: larger tap targets and prevention of layout shifts during interaction.
-- Theme tokens seeded for color, spacing, typography — applied globally to start unifying design system.
+- **New Launcher (App Router)** at `/launch` with responsive tile-based game selection from centralized games config
+- **Legacy Launcher (Pages Router)** at `/launcher` for backward compatibility and E2E test support
+- **Reusable Toast System** globally mounted with ARIA-compliant notifications (`role="status"`, `aria-live="polite"`, deterministic `aria-label`)
+- **Health Endpoints** restored: `/healthz` (App Router) and `/api/ping` with proper JSON responses
+- Games registry and centralized configuration for all game metadata
+- Theme tokens and ThemeProvider for app-wide theming foundation
+- Mobile ergonomics improvements: larger tap targets and prevention of layout shifts
 
 ### Changed
-- Modal component reworked into an accessible, reusable pattern:
-  - Renders via portal
-  - Background inert during open state
-  - Supports ESC/Cancel/Confirm flows
-- Flag Quiz updated to use shared modal and toast components.
+- Homepage simplified to minimal implementation with redirect to launcher
+- Toast system enhanced with deterministic ARIA properties for reliable E2E testing
+- Modal component reworked into accessible, reusable pattern with portal rendering
+- Flag Quiz updated to use shared modal and toast components
 
 ### Fixed
-- E2E tests stabilized around race conditions in toast visibility.
-- Local dev axe a11y smoke test runs but is skipped in CI.
+- **Test Stabilization**: All 37 tests now run successfully (33 passing, 4 skipped, 0 failures)
+- E2E tests stabilized around race conditions in toast visibility
+- TypeScript configuration issues resolved after Tailwind integration
+- Build process and module resolution fixed in monorepo structure
+- Infrastructure cleanup ensuring development server runs without warnings
+
+### Infrastructure
+- Tailwind CSS fully integrated with proper PostCSS configuration
+- Dependencies updated and cleaned up across all packages
+- Monorepo structure optimized for better build performance
