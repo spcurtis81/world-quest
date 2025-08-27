@@ -1,11 +1,25 @@
 {
   "name": "@config/shared",
   "version": "0.1.0",
-  "private": true,
+  "private": false,
   "type": "module",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
   "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
     "./eslint": "./eslint.config.cjs",
     "./prettier": "./prettier.config.cjs",
     "./tsconfig": "./tsconfig.shared.json"
+  },
+  "files": ["dist", "eslint.config.cjs", "prettier.config.cjs", "tsconfig.shared.json"],
+  "scripts": {
+    "build": "tsup src/index.ts --dts --format esm --out-dir dist",
+    "dev": "tsup src/index.ts --dts --format esm --out-dir dist --watch",
+    "typecheck": "tsc -p tsconfig.json"
   }
 }

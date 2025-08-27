@@ -4,7 +4,7 @@ export const preferredRegion = "auto";
 
 export async function GET() {
   return Response.json(
-    { status: "ok" },
+    { status: "ok", time: new Date().toISOString() },
     { headers: { "cache-control": "no-store, no-cache, must-revalidate" } }
   );
 }

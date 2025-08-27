@@ -11,10 +11,19 @@
     "esModuleInterop": true,
     "baseUrl": ".",
     "paths": {
+      // UI package (canonical + broad)
+      "@ui/shared": ["packages/ui/src/index.ts"],
+      "@ui/shared/*": ["packages/ui/src/*"],
       "@ui/*": ["packages/ui/src/*"],
-      "@lib/*": ["packages/lib/src/*"],
-      "@lib/shared/*": ["packages/lib/src/*"],
+
+      // Lib package (canonical + broad)
       "@lib/shared": ["packages/lib/src/index.ts"],
+      "@lib/shared/*": ["packages/lib/src/*"],
+      "@lib/*": ["packages/lib/src/*"],
+
+      // Config package (canonical + broad)
+      "@config/shared": ["packages/config/src/index.ts"],
+      "@config/shared/*": ["packages/config/src/*"],
       "@config/*": ["packages/config/*"]
     },
     "types": ["node"]

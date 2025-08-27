@@ -1,4 +1,21 @@
 # Changelog
+
+## Unreleased – Sprint 11 (0.11.0-dev)
+
+### Added
+- ActivityPane component for displaying game activity and status
+- HeaderBar component for global navigation
+- Tailwind CSS integration and configuration
+- Design token system for consistent styling
+
+### Changed
+- *To be updated during sprint*
+
+### Fixed
+- *To be updated during sprint*
+
+### Infrastructure
+- *To be updated during sprint*
 ## 0.1.0 – Sprint 1
 - API endpoint `/v1/quiz/flag` with deterministic `seed`.
 - Web page `/flag-quiz` to fetch and answer a single question.

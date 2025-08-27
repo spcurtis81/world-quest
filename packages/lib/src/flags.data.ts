@@ -84,7 +84,8 @@ export function pickDistinct<T>(rand: () => number, arr: T[], count: number): T[
   const picked: T[] = [];
   for (let i = 0; i < count && copy.length > 0; i++) {
     const idx = Math.floor(rand() * copy.length);
-    picked.push(copy.splice(idx, 1)[0]);
+    const item = copy.splice(idx, 1)[0];
+    if (item) picked.push(item);
   }
   return picked;
 }

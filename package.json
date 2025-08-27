@@ -3,7 +3,7 @@
   "private": true,
   "packageManager": "pnpm@9.6.0",
   "scripts": {
-    "dev": "pnpm -r --parallel dev",
+    "dev": "concurrently -k -n api,web \"pnpm --filter @app/api dev\" \"pnpm --filter @app/web dev\"",
     "dev:web": "pnpm --filter @app/web dev",
     "dev:api": "pnpm --filter @app/api dev",
     "build": "pnpm -r build",
@@ -16,7 +16,9 @@
     "format": "pnpm -r format",
     "test": "pnpm -r test",
     "e2e": "pnpm -C tests e2e",
-    "e2e:full": "scripts/e2e-runner.sh",
+    "e2e:fresh": "scripts/e2e-fresh.sh",
+    "e2e:fresh:kill": "E2E_SHUTDOWN_DEV=1 scripts/e2e-fresh.sh",
+    "kill:dev": "pkill -f \"next dev\" || true && pkill -f \"tsx watch\" || true && pkill -f node || true",
     "prepare": "husky install",
     "postinstall": "husky install || true"
   },
@@ -25,6 +27,7 @@
     "@types/node": "^20.12.12",
     "@typescript-eslint/eslint-plugin": "^7.18.0",
     "@typescript-eslint/parser": "^7.18.0",
+    "@vitejs/plugin-react": "^4.3.1",
     "concurrently": "^8.2.2",
     "eslint": "^9.8.0",
     "eslint-config-next": "^15.0.0",
@@ -33,20 +36,22 @@
     "eslint-plugin-react": "^7.35.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-unused-imports": "^3.1.0",
-    "husky": "^9.0.11",
-    "lint-staged": "^15.2.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.5.2",
     "prettier": "^3.3.3",
     "prettier-plugin-packagejson": "^2.5.3",
     "tsup": "^8.1.0",
     "tsx": "^4.16.2",
     "typescript": "^5.6.2",
-    "vite": "^5.4.2",
-    "@vitejs/plugin-react": "^4.3.1"
+    "vite": "^5.4.2"
   },
   "lint-staged": {
     "*.{ts,tsx,js,jsx,cjs,mjs}": [
       "pnpm -w lint --fix",
       "pnpm -w format"
     ]
+  },
+  "dependencies": {
+    "react-hot-toast": "^2.4.1"
   }
 }

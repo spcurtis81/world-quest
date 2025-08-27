@@ -1,3 +1,19 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Base styles and font smoothing */
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  body {
+    @apply transition-colors duration-200;
+  }
+}
+
 /* --- UI TOKENS (inlined) --- */
 :root {
   /* spacing */
