@@ -55,6 +55,22 @@ export default function FlagQuizClient({ initialRoundSize, initialSeed }: Props)
     }
   };
 
+  const beginRound = React.useCallback((indexToLoad?: number, overrideSeed?: number, regionOverride?: string) => {
+    // Reset round state
+    setScoreCorrect(0);
+    setScoreTotal(0);
+    setQuestionIndex(0);
+    setChosen(null);
+    setRoundResults([]);
+    setPhase("question");
+    
+    // Load first question
+    load(indexToLoad, overrideSeed, regionOverride);
+    
+    // Emit deterministic toast with stable ID
+    toast("New round started", { id: "round-started" });
+  }, [load]);
+
   async function load(indexToLoad?: number, overrideSeed?: number, regionOverride?: string) {
     setStatus("loading");
     setChosen(null);
@@ -73,12 +89,12 @@ export default function FlagQuizClient({ initialRoundSize, initialSeed }: Props)
     setTimeout(() => firstOptionRef.current?.focus(), 0);
   }
 
+  const mountedRef = React.useRef(false);
   React.useEffect(() => {
-    setPhase("question");
-    setQuestionIndex(0);
-    load(seedFor(0));
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    if (mountedRef.current) return;
+    mountedRef.current = true;
+    beginRound(0, seedFor(0));
+  }, [beginRound]);
   // Persist region in-session
   React.useEffect(() => { try { if (typeof window !== "undefined") sessionStorage.setItem("region", region); } catch {} }, [region]);
   React.useEffect(() => {
@@ -137,29 +153,26 @@ export default function FlagQuizClient({ initialRoundSize, initialSeed }: Props)
     }
   }, [phase, scoreCorrect, scoreTotal]);
 
-  // Block background when modal is open by toggling attributes on <main>
   React.useEffect(() => {
-    if (typeof document === "undefined") return;
-    const mainEl = document.querySelector('main');
-    if (!mainEl) return;
+    const shell = document.querySelector<HTMLElement>('main[data-testid="app-shell"]');
+    if (!shell) return;
     if (isRegionModalOpen) {
-      mainEl.setAttribute('inert', '');
-      mainEl.setAttribute('aria-hidden', 'true');
+      shell.setAttribute("inert", "");
+      shell.setAttribute("aria-hidden", "true");
     } else {
-      mainEl.removeAttribute('inert');
-      mainEl.removeAttribute('aria-hidden');
+      shell.removeAttribute("inert");
+      shell.removeAttribute("aria-hidden");
     }
     return () => {
-      mainEl.removeAttribute('inert');
-      mainEl.removeAttribute('aria-hidden');
+      shell.removeAttribute("inert");
+      shell.removeAttribute("aria-hidden");
     };
   }, [isRegionModalOpen]);
 
   return (
-    <main role="main" aria-label="Flag Quiz">
+    <section role="region" aria-label="Flag Quiz">
       <div
         className="fq-container"
-        data-testid="app-shell"
       >
       <h1>Flag Quiz</h1>
       <p style={{ marginTop: 0 }}>Single question demo (Sprint 1).</p>
@@ -259,10 +272,7 @@ export default function FlagQuizClient({ initialRoundSize, initialSeed }: Props)
           </ul>
           <a href="/stats" data-testid="go-stats" style={{ marginRight: 8 }}>View stats</a>
           <button aria-label="Play Again" onClick={() => {
-            setScoreCorrect(0); setScoreTotal(0); setQuestionIndex(0); setChosen(null);
-            setRoundResults([]);
-            setPhase("question"); load(0);
-            try { toast("New round started", { variant: "info" }); } catch {}
+            beginRound(0);
           }} data-testid="restart">Play Again</button>
         </section>
       ) : (
@@ -353,7 +363,7 @@ export default function FlagQuizClient({ initialRoundSize, initialSeed }: Props)
         <ModalPortal>
           <div
             data-testid="modal-backdrop"
-            style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.35)', zIndex: 9998 }}
+            style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.35)', zIndex: 10000 }}
             aria-hidden="true"
           />
           <dialog
@@ -362,7 +372,7 @@ export default function FlagQuizClient({ initialRoundSize, initialSeed }: Props)
             aria-modal="true"
             role="dialog"
             aria-labelledby="region-modal-title"
-            style={{ position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', zIndex: 9999, border: 'none', borderRadius: 8, padding: 16, maxWidth: 420, width: 'calc(100% - 2rem)' }}
+            style={{ position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', zIndex: 10001, border: 'none', borderRadius: 8, padding: 16, maxWidth: 420, width: 'calc(100% - 2rem)' }}
             onKeyDown={(ev) => {
               if (ev.key === 'Escape') {
                 ev.preventDefault();
@@ -398,17 +408,10 @@ export default function FlagQuizClient({ initialRoundSize, initialSeed }: Props)
                   setIsRegionModalOpen(false);
                   setRegion(applied);
                   // restart round
-                  setPhase('question');
-                  setQuestionIndex(0);
-                  setChosen(null);
-                  setScoreCorrect(0);
-                  setScoreTotal(0);
-                  setRoundResults([]);
-                  load(0, undefined, applied);
+                  beginRound(0, undefined, applied);
                   setTimeout(() => {
                     document.querySelector<HTMLButtonElement>('main ul [role="button"]')?.focus();
                   }, 0);
-                  try { toast("New round started", { variant: "info" }); } catch {}
                 }}
               >
                 Confirm
@@ -425,7 +428,7 @@ export default function FlagQuizClient({ initialRoundSize, initialSeed }: Props)
           <li>Q2 — ❌ Germany</li>
         </ul>
       </section>
-    </main>
+    </section>
   );
 }
 
