@@ -141,3 +141,31 @@ button.btn.primary { background: #4f46e5; color: white; }
   button.btn.secondary { background: #374151; color: #f9fafb; }
   button.btn.primary { background: #6366f1; }
 }
+
+:root {
+  --app-bg-from: 254 242 255; /* f5f3ff - lavender */
+  --app-bg-to: 236 254 255;   /* ecfeff - sky */
+  --app-overlay: 255 255 255; /* white */
+}
+.dark:root {
+  --app-bg-from: 2 6 23;     /* 020617 - slate-950-ish */
+  --app-bg-to: 15 23 42;     /* 0f172a - slate-900-ish */
+  --app-overlay: 0 0 0;
+}
+.bg-app {
+  background-image:
+    radial-gradient(ellipse at 20% 10%, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0.0) 40%),
+    linear-gradient(to bottom right, rgb(var(--app-bg-from)), rgb(var(--app-bg-to)));
+  background-attachment: fixed;
+}
+.bg-app-overlay {
+  /* Hook for future background images via CSS variables if desired */
+  /* Example (commented):
+  background-image: var(--app-bg-image, none);
+  background-size: cover;
+  background-position: center;
+  */
+}
+.app-header, .app-footer { /* light structural spacing if used */
+  /* keep minimal to avoid layout shifts; can be extended later */
+}
