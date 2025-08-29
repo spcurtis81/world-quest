@@ -1,6 +1,7 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, type Page } from "@playwright/test";
 import { FLAG_POOL_STUB } from "@lib/shared";
 import { waitForHttp, waitForAnyHttp } from "./utils/wait";
+import { EU_CODES, isEuropeanCode } from "./utils/regions";
 
 const PORT_API = Number(process.env.PORT_API ?? 4000);
 const PORT_WEB = Number(process.env.PORT_WEB ?? 3000);
@@ -398,7 +399,7 @@ test("round of 20 uses unique flags (stub)", async ({ page }) => {
   expect(seen.size).toBeGreaterThanOrEqual(20);
 });
 
-const EU_CODES = new Set(FLAG_POOL_STUB.filter(f => f.region === "EU").map(f => f.code.toUpperCase()));
+// EU_CODES now imported from ./utils/regions for broader coverage
 
 test("region filter limits flags to selected region", async ({ page }) => {
   // Use a fixed seed + n so the sequence is deterministic and finite.
@@ -411,24 +412,44 @@ test("region filter limits flags to selected region", async ({ page }) => {
   const options = page.locator("main ul >> role=button");
   await options.first().waitFor({ state: "visible" });
 
-  // Helper to extract a 2-letter code from the flag <img src=...>
-  async function readCode() {
-    const img = page.locator("img[alt='Flag'], img[alt^='Flag ']");
-    await img.first().waitFor({ state: "visible" });
-    const src = await img.first().getAttribute("src");
-    if (!src) throw new Error("No flag image src found");
-    // Match .../xx.svg or .../w320/xx.png or /flags/XX.svg
-    const m = src.match(/\/([A-Za-z]{2})\.(svg|png)\b/);
-    if (!m) throw new Error(`Could not parse code from src=${src}`);
-    return m[1].toUpperCase();
+  async function readCode(page: Page): Promise<string> {
+    const img = page.locator('[data-testid="flag-image"]');
+
+    // Ensure the image is visible (handles initial render)
+    await img.first().waitFor({ state: "visible", timeout: 3000 });
+
+    // Try a short retry loop to cope with rerenders
+    const deadline = Date.now() + 2000; // 2s
+    while (Date.now() < deadline) {
+      // 1) Prefer stable data attribute
+      const fromAttr = await img.first().getAttribute("data-code");
+      if (fromAttr && /^[A-Za-z]{2}$/.test(fromAttr)) {
+        return fromAttr.toUpperCase();
+      }
+
+      // 2) Fallback: parse from alt text like: "Flag of <Name> (XX)"
+      const alt = await img.first().getAttribute("alt");
+      if (alt) {
+        const m = alt.match(/\(([A-Za-z]{2})\)/);
+        if (m && m[1]) {
+          return m[1].toUpperCase();
+        }
+      }
+
+      await page.waitForTimeout(100);
+    }
+
+    // If still nothing, throw a more actionable error
+    throw new Error("Could not read flag ISO code from data-code or alt after retries.");
   }
 
   // Check all 5 questions in the round
   for (let i = 0; i < 5; i++) {
-    const code = await readCode();
-    if (!EU_CODES.has(code)) {
+    const code = await readCode(page);
+    if (!isEuropeanCode(code)) {
       throw new Error(`Flag code ${code} not in EU set`);
     }
+    
     // Answer and move on
     await options.first().click();
     await page.getByText(/Correct|Incorrect/).waitFor();

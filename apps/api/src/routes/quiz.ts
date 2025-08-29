@@ -2,6 +2,7 @@ import { FastifyInstance } from "fastify";
 import { z } from "zod";
 import { COUNTRIES, seededRandom, pickDistinct } from "@lib/shared/flags.data";
 import { FLAG_IMAGE_CODES } from "@lib/shared/flags.images";
+import { filterByRegion, type RegionKey } from "@lib/shared";
 import { FLAG_POOL_STUB, type FlagMeta } from "@lib/shared";
 
 const FlagQuestion = z.object({
@@ -26,9 +27,12 @@ export default async function quizRoutes(fastify: FastifyInstance) {
 
     const desired = [4, 6, 8].includes(options ?? 0) ? (options as number) : 4;
 
-    // Build working pool based on region
-    const region = (regionRaw ?? "ALL").toUpperCase();
-    const pool = region === "ALL" ? FLAG_POOL_STUB : FLAG_POOL_STUB.filter(f => f.region === region);
+    const regionParam = (regionRaw as string | undefined)?.toUpperCase() as RegionKey | undefined;
+    const region: RegionKey = regionParam === "EU" ? "EU" : "ALL";
+
+    // Apply server-side region filter BEFORE choosing the question/options
+    const candidates = filterByRegion(FLAG_POOL_STUB, region);
+    const pool = candidates.length > 0 ? candidates : FLAG_POOL_STUB;
     if (pool.length < desired) {
       throw new Error("Not enough flags for requested options/region");
     }
@@ -79,5 +83,10 @@ export default async function quizRoutes(fastify: FastifyInstance) {
 
     // validate before sending
     return FlagQuestion.parse(payload);
+  });
+
+  fastify.get("/v1/debug/regions/eu", (_req, res) => {
+    const candidates = filterByRegion(FLAG_POOL_STUB, "EU");
+    res.send({ count: candidates.length });
   });
 }
