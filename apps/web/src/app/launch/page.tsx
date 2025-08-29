@@ -1,13 +1,14 @@
 import React from "react";
 import { games } from "@config/shared";
-import { GameCard } from "@ui/shared";
+import { GameCard, GlassPanel, HeaderBar } from "@ui/shared";
 
 export const dynamic = "force-static";
 
 export default function LaunchPage() {
   const visible = games.filter((g) => g.status !== "hidden");
   return (
-    <main>
+    <GlassPanel className="max-w-3xl mx-auto">
+      <HeaderBar title="Launcher" />
       <h1 data-testid="launcher-title">Choose a game</h1>
       <ul data-testid="launcher-grid">
         {visible.map((g) => (
@@ -21,6 +22,6 @@ export default function LaunchPage() {
           />
         ))}
       </ul>
-    </main>
+    </GlassPanel>
   );
 }
