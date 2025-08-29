@@ -22,7 +22,8 @@ export default function FlagQuizClient({ initialRoundSize, initialSeed }: Props)
   const [scoreCorrect, setScoreCorrect] = React.useState(0);
   const [scoreTotal, setScoreTotal] = React.useState(0);
   const [difficulty, setDifficulty] = React.useState<"easy"|"medium"|"hard">("easy");
-  const [region, setRegion] = React.useState<"ALL"|"EU"|"AF"|"AS"|"AM"|"OC">("ALL");
+  const [appliedRegion, setAppliedRegion] = React.useState<"ALL"|"EU"|"AF"|"AS"|"AM"|"OC">("ALL");
+  const currentFetchIdRef = React.useRef(0);
   // Sprint 7 stubs (unused until implementation)
   const [isRegionModalOpen, setIsRegionModalOpen] = React.useState(false);
   const [pendingRegion, setPendingRegion] = React.useState<"ALL"|"EU"|"AF"|"AS"|"AM"|"OC">("ALL");
@@ -39,18 +40,13 @@ export default function FlagQuizClient({ initialRoundSize, initialSeed }: Props)
 
   const handleRegionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newValue = (e.currentTarget.value as "ALL"|"EU"|"AF"|"AS"|"AM"|"OC");
-    if (phase === "question" && newValue !== region) {
+    if (phase === "question" && newValue !== appliedRegion) {
       setPendingRegion(newValue);
       setIsRegionModalOpen(true);
     } else {
-      setRegion(newValue);
+      setAppliedRegion(newValue);
       if (phase !== "question") {
-        setQuestionIndex(0);
-        setChosen(null);
-        setScoreCorrect(0);
-        setScoreTotal(0);
-        setRoundResults([]);
-        load(0, undefined, newValue);
+        beginRound(0, undefined, newValue);
       }
     }
   };
@@ -63,6 +59,7 @@ export default function FlagQuizClient({ initialRoundSize, initialSeed }: Props)
     setChosen(null);
     setRoundResults([]);
     setPhase("question");
+    setQ(null);
     
     // Load first question
     load(indexToLoad, overrideSeed, regionOverride);
@@ -72,6 +69,7 @@ export default function FlagQuizClient({ initialRoundSize, initialSeed }: Props)
   }, [load]);
 
   async function load(indexToLoad?: number, overrideSeed?: number, regionOverride?: string) {
+    const fetchId = ++currentFetchIdRef.current;
     setStatus("loading");
     setChosen(null);
     const url = new URL((process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000") + "/v1/quiz/flag");
@@ -81,12 +79,15 @@ export default function FlagQuizClient({ initialRoundSize, initialSeed }: Props)
     url.searchParams.set("index", String(idx));
     const optsMap = { easy: 4, medium: 6, hard: 8 } as const;
     url.searchParams.set("options", String(optsMap[difficulty]));
-    url.searchParams.set("region", String(regionOverride ?? region));
+    url.searchParams.set("region", String(regionOverride ?? appliedRegion));
     const res = await fetch(url.toString(), { cache: "no-store" });
     const data = await res.json();
-    setQ(data);
-    setStatus("ready");
-    setTimeout(() => firstOptionRef.current?.focus(), 0);
+
+    if (fetchId === currentFetchIdRef.current) {
+      setQ(data);
+      setStatus("ready");
+      setTimeout(() => firstOptionRef.current?.focus(), 0);
+    }
   }
 
   const mountedRef = React.useRef(false);
@@ -96,12 +97,12 @@ export default function FlagQuizClient({ initialRoundSize, initialSeed }: Props)
     beginRound(0, seedFor(0));
   }, [beginRound]);
   // Persist region in-session
-  React.useEffect(() => { try { if (typeof window !== "undefined") sessionStorage.setItem("region", region); } catch {} }, [region]);
+  React.useEffect(() => { try { if (typeof window !== "undefined") sessionStorage.setItem("region", appliedRegion); } catch {} }, [appliedRegion]);
   React.useEffect(() => {
     try {
       if (typeof window !== "undefined") {
         const saved = sessionStorage.getItem("region") as any;
-        if (saved) setRegion(saved);
+        if (saved) setAppliedRegion(saved);
       }
     } catch {}
   }, []);
@@ -131,7 +132,7 @@ export default function FlagQuizClient({ initialRoundSize, initialSeed }: Props)
           const optionsCount = optsMap[difficulty];
           const stat: RoundResultSummary = {
             finishedAt: new Date().toISOString(),
-            region,
+            region: appliedRegion,
             optionsCount,
             mode: isInfinite ? "infinite" : "finite",
             n: isInfinite ? undefined : roundSize,
@@ -151,7 +152,7 @@ export default function FlagQuizClient({ initialRoundSize, initialSeed }: Props)
         }
       } catch { setHistory([]); }
     }
-  }, [phase, scoreCorrect, scoreTotal]);
+  }, [phase, scoreCorrect, scoreTotal, appliedRegion, isInfinite, roundSize, difficulty]);
 
   React.useEffect(() => {
     const shell = document.querySelector<HTMLElement>('main[data-testid="app-shell"]');
@@ -170,7 +171,7 @@ export default function FlagQuizClient({ initialRoundSize, initialSeed }: Props)
   }, [isRegionModalOpen]);
 
   return (
-    <section role="region" aria-label="Flag Quiz">
+    <section role="region" aria-label="Flag Quiz" data-region={appliedRegion}>
       <div
         className="fq-container"
       >
@@ -213,7 +214,7 @@ export default function FlagQuizClient({ initialRoundSize, initialSeed }: Props)
               if (phase !== "question") {
                 setQuestionIndex(0);
                 setChosen(null);
-                load(0, undefined, region);
+                load(0, undefined, appliedRegion);
               }
             }}
           >
@@ -225,7 +226,7 @@ export default function FlagQuizClient({ initialRoundSize, initialSeed }: Props)
         </label>
         {/* Sprint 7 STUB: Region */}
         <label>Region:&nbsp;
-          <select aria-label="Region" data-testid="region-select" ref={regionSelectRef} value={region} onChange={handleRegionChange}>
+          <select aria-label="Region" data-testid="region-select" ref={regionSelectRef} value={appliedRegion} onChange={handleRegionChange}>
             <option value="ALL">World</option>
             <option value="EU">Europe</option>
             <option value="AF">Africa</option>
@@ -283,8 +284,10 @@ export default function FlagQuizClient({ initialRoundSize, initialSeed }: Props)
             </div>
             {q?.imageUrl && (
               <img
+                data-testid="flag-image"
+                data-code={q.correctId}
                 src={q.imageUrl}
-                alt={`Flag for ${q?.id ?? "current question"}`}
+                alt={`Flag of ${q.correctId} (${q.correctId})`}
                 loading="lazy"
                 style={{ maxWidth: 320, height: "auto", display: "block", marginBottom: 12 }}
               />
@@ -378,7 +381,7 @@ export default function FlagQuizClient({ initialRoundSize, initialSeed }: Props)
                 ev.preventDefault();
                 ev.stopPropagation();
                 setIsRegionModalOpen(false);
-                setPendingRegion(region);
+                setPendingRegion(appliedRegion);
                 document.querySelector<HTMLSelectElement>('[data-testid="region-select"]')?.focus();
               }
             }}
@@ -392,7 +395,7 @@ export default function FlagQuizClient({ initialRoundSize, initialSeed }: Props)
                 className="btn secondary"
                 onClick={() => {
                   setIsRegionModalOpen(false);
-                  setPendingRegion(region);
+                  setPendingRegion(appliedRegion);
                   document.querySelector<HTMLSelectElement>('[data-testid="region-select"]')?.focus();
                 }}
               >
@@ -404,9 +407,10 @@ export default function FlagQuizClient({ initialRoundSize, initialSeed }: Props)
                 autoFocus
                 className="btn primary"
                 onClick={() => {
-                  const applied = pendingRegion ?? region;
+                  const applied = pendingRegion ?? appliedRegion;
                   setIsRegionModalOpen(false);
-                  setRegion(applied);
+                  setAppliedRegion(applied);
+                  setQ(null);
                   // restart round
                   beginRound(0, undefined, applied);
                   setTimeout(() => {

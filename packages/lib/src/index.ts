@@ -5,3 +5,4 @@ export * from "./history.store";
 export * from "./flags.pool";
 export * from "./stats";
 export * from "./games.registry";
+export * from "./regions";
